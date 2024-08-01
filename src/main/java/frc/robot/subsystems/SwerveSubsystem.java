@@ -128,12 +128,12 @@ public class SwerveSubsystem extends SubsystemBase{
     }
 
     // DRIVE the robot
-    public void setModuleStates(SwerveModuleState[] desiredStates) {
+    public void setModuleStates(SwerveModuleState[] pDesiredStates) {
         // Set speed to max if go over max speed
-        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond);
+        SwerveDriveKinematics.desaturateWheelSpeeds(pDesiredStates, Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond);
         // Move modules
         for (int i = 0; i < modules.length; i++) {
-            modules[i].setDesiredState(desiredStates[i]);
+            modules[i].setDesiredState(pDesiredStates[i]);
         }
     }
 }

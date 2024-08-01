@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants;
 
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -17,8 +18,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class SwerveModule {
 
     // motors and encoders
-    public final CANSparkMax driveMotor;
-    public final CANSparkMax turnMotor;
+    public final TalonFX mDriveMotor;
+    public final CANSparkMax mTurnMotor;
     public final RelativeEncoder driveEncoder;
     public final RelativeEncoder turnEncoder;
 
@@ -26,7 +27,7 @@ public class SwerveModule {
 
     // aBSOLUTE ENCODER - knows where the wheels are facing at all times
     public final AnalogInput absoluteEncoder;
-    public final boolean absoluteEncoderReversed;
+    public final boolean AbsoluteEncoderReversed;
     public final double absoluteEncoderOffset;
 
 
@@ -34,20 +35,20 @@ public class SwerveModule {
     private double totalDistance; // Track the total distance traveled
 
     public SwerveModule(
-        int drivePort, int turnPort, boolean driveReversed, boolean turnReversed, int absoluteEncoderPort, double absoluteEncoderOffset, boolean absoluteEncoderReversed) {
+        int pDrivePort, int pTurnPort, boolean pDriveReversed, boolean pTurnReversed, int pAbsoluteEncoderPort, double pAbsoluteEncoderOffset, boolean pAbsoluteEncoderReversed) {
 
             // Motors
-            driveMotor = new CANSparkMax(drivePort, MotorType.kBrushless);
-            turnMotor = new CANSparkMax(turnPort, MotorType.kBrushless);
-            driveMotor.setInverted(driveReversed);
-            turnMotor.setInverted(turnReversed);
+            mDriveMotor = new TalonFX(pDrivePort);
+            mTurnMotor = new CANSparkMax(pTurnPort, MotorType.kBrushless);
+            mDriveMotor.setInverted(pDriveReversed);
+            mTurnMotor.setInverted(pTurnReversed);
 
-            this.previousPosition = 0.0;
-            this.totalDistance = 0.0;
+            previousPosition = 0.0;
+            totalDistance = 0.0;
 
             // Encoders
-            driveEncoder = driveMotor.getEncoder();
-            turnEncoder = turnMotor.getEncoder();
+            driveEncoder = mDriveMotor.getEncoder();
+            turnEncoder = mTurnMotor.getEncoder();
 
             // Conversions to meters and radians instead of rotations
             driveEncoder.setPositionConversionFactor(Constants.Mechanical.kDriveEncoderRot2Meter);
@@ -56,9 +57,9 @@ public class SwerveModule {
             turnEncoder.setVelocityConversionFactor(Constants.Mechanical.kTurningEncoderRPM2RadPerSec);
 
             // Absolute Encoder
-            absoluteEncoder = new AnalogInput(absoluteEncoderPort);
-            this.absoluteEncoderReversed = absoluteEncoderReversed;
-            this.absoluteEncoderOffset = absoluteEncoderOffset;
+            absoluteEncoder = new AnalogInput(pAbsoluteEncoderPort);
+            AbsoluteEncoderReversed = pAbsoluteEncoderReversed;
+            absoluteEncoderOffset = pAbsoluteEncoderOffset;
 
             //PID Controller - what is this
             turningPIDController = new PIDController(0.5, 0, 0);
@@ -78,7 +79,7 @@ public class SwerveModule {
         angle *= 2.0 * Math.PI;
         
         angle -= absoluteEncoderOffset;
-        return angle * (absoluteEncoderReversed ? -1.0 : 1.0);
+        return angle * (AbsoluteEncoderReversed ? -1.0 : 1.0);
     }
  
     // Return all data of the position of the robot - type SwerveModuleState
@@ -121,8 +122,8 @@ public class SwerveModule {
         // Optimize angle (turn no more than 90 degrees)
         state = SwerveModuleState.optimize(state, getState().angle); 
         // Set power
-        driveMotor.set(state.speedMetersPerSecond / Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond);
-        turnMotor.set(turningPIDController.calculate(turnEncoder.getPosition(), state.angle.getRadians()));
+        mDriveMotor.set(state.speedMetersPerSecond / Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond);
+        mTurnMotor.set(turningPIDController.calculate(turnEncoder.getPosition(), state.angle.getRadians()));
 
         // Telemetry
         SmartDashboard.putString("Swerve[" + absoluteEncoder.getChannel() + "] state", state.toString());
@@ -131,7 +132,7 @@ public class SwerveModule {
 
     // Stop moving
     public void stop() {
-        driveMotor.set(0);
-        turnMotor.set(0);
+        mDriveMotor.set(0);
+        mTurnMotor.set(0);
     }
 }
