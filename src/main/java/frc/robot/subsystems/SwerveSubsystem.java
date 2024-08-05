@@ -19,43 +19,43 @@ public class SwerveSubsystem extends SubsystemBase{
     private final SwerveModule[] modules = {
         // Front Left
         new SwerveModule(
-            Constants.MotorPorts.kFrontLeftDriveMotorPort,
-            Constants.MotorPorts.kFrontLeftTurningMotorPort,
-            Constants.Reversed.kFrontLeftDriveEncoderReversed,
-            Constants.Reversed.kFrontLeftTurningEncoderReversed,
-            Constants.MotorPorts.kFrontLeftDriveAbsoluteEncoderPort,
-            Constants.Mechanical.kFrontLeftDriveAbsoluteEncoderOffsetRad,
-            Constants.Reversed.kFrontLeftDriveAbsoluteEncoderReversed),
+            Constants.MotorPorts.kFLDriveMotorPort,
+            Constants.MotorPorts.kFLTurningMotorPort,
+            Constants.Reversed.kFLDriveEncoderReversed,
+            Constants.Reversed.kFLTurningEncoderReversed,
+            Constants.MotorPorts.kFLDriveAbsoluteEncoderPort,
+            Constants.Mechanical.kFLDriveAbsoluteEncoderOffsetRad,
+            Constants.Reversed.kFLDriveAbsoluteEncoderReversed),
         
         // Front Right
         new SwerveModule(
-            Constants.MotorPorts.kFrontRightDriveMotorPort,
-            Constants.MotorPorts.kFrontRightTurningMotorPort,
-            Constants.Reversed.kFrontRightDriveEncoderReversed,
-            Constants.Reversed.kFrontRightTurningEncoderReversed,
-            Constants.MotorPorts.kFrontRightDriveAbsoluteEncoderPort,
-            Constants.Mechanical.kFrontRightDriveAbsoluteEncoderOffsetRad,
-            Constants.Reversed.kFrontRightDriveAbsoluteEncoderReversed),
+            Constants.MotorPorts.kFRDriveMotorPort,
+            Constants.MotorPorts.kFRTurningMotorPort,
+            Constants.Reversed.kFRDriveEncoderReversed,
+            Constants.Reversed.kFRTurningEncoderReversed,
+            Constants.MotorPorts.kFRDriveAbsoluteEncoderPort,
+            Constants.Mechanical.kFRDriveAbsoluteEncoderOffsetRad,
+            Constants.Reversed.kFRDriveAbsoluteEncoderReversed),
         
         // Back Left
         new SwerveModule(
-            Constants.MotorPorts.kBackLeftDriveMotorPort,
-            Constants.MotorPorts.kBackLeftTurningMotorPort,
-            Constants.Reversed.kBackLeftDriveEncoderReversed,
-            Constants.Reversed.kBackLeftTurningEncoderReversed,
-            Constants.MotorPorts.kBackLeftDriveAbsoluteEncoderPort,
-            Constants.Mechanical.kBackLeftDriveAbsoluteEncoderOffsetRad,
-            Constants.Reversed.kBackLeftDriveAbsoluteEncoderReversed),
+            Constants.MotorPorts.kBLDriveMotorPort,
+            Constants.MotorPorts.kBLTurningMotorPort,
+            Constants.Reversed.kBLDriveEncoderReversed,
+            Constants.Reversed.kBLTurningEncoderReversed,
+            Constants.MotorPorts.kBLDriveAbsoluteEncoderPort,
+            Constants.Mechanical.kBLDriveAbsoluteEncoderOffsetRad,
+            Constants.Reversed.kBLDriveAbsoluteEncoderReversed),
         
         // Back Right
         new SwerveModule(
-            Constants.MotorPorts.kBackRightDriveMotorPort,
-            Constants.MotorPorts.kBackRightTurningMotorPort,
-            Constants.Reversed.kBackRightDriveEncoderReversed,
-            Constants.Reversed.kBackRightTurningEncoderReversed,
-            Constants.MotorPorts.kBackRightDriveAbsoluteEncoderPort,
-            Constants.Mechanical.kBackRightDriveAbsoluteEncoderOffsetRad,
-            Constants.Reversed.kBackRightDriveAbsoluteEncoderReversed),
+            Constants.MotorPorts.kBRDriveMotorPort,
+            Constants.MotorPorts.kBRTurningMotorPort,
+            Constants.Reversed.kBRDriveEncoderReversed,
+            Constants.Reversed.kBRTurningEncoderReversed,
+            Constants.MotorPorts.kBRDriveAbsoluteEncoderPort,
+            Constants.Mechanical.kBRDriveAbsoluteEncoderOffsetRad,
+            Constants.Reversed.kBRDriveAbsoluteEncoderReversed),
         
     };
 

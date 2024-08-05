@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants;
 
@@ -20,7 +21,7 @@ public class SwerveModule {
     // motors and encoders
     public final TalonFX mDriveMotor;
     public final CANSparkMax mTurnMotor;
-    public final RelativeEncoder driveEncoder;
+    public final Encoder driveEncoder;
     public final RelativeEncoder turnEncoder;
 
     public final PIDController turningPIDController;
@@ -47,12 +48,13 @@ public class SwerveModule {
             totalDistance = 0.0;
 
             // Encoders
-            driveEncoder = mDriveMotor.getEncoder();
+            driveEncoder = new Encoder(null, null);
             turnEncoder = mTurnMotor.getEncoder();
 
             // Conversions to meters and radians instead of rotations
-            driveEncoder.setPositionConversionFactor(Constants.Mechanical.kDriveEncoderRot2Meter);
-            driveEncoder.setVelocityConversionFactor(Constants.Mechanical.kDriveEncoderRPM2MeterPerSec);
+            // mDriveMotor.setPositionConversionFactor(Constants.Mechanical.kDriveEncoderRot2Meter);
+            // driveEncoder.setVelocityConversionFactor(Constants.Mechanical.kDriveEncoderRPM2MeterPerSec);
+            driveEncoder.setDistancePerPulse(Constants.Mechanical.kDistancePerPulse);
             turnEncoder.setPositionConversionFactor(Constants.Mechanical.kTurningEncoderRot2Rad);
             turnEncoder.setVelocityConversionFactor(Constants.Mechanical.kTurningEncoderRPM2RadPerSec);
 
@@ -66,7 +68,8 @@ public class SwerveModule {
             turningPIDController.enableContinuousInput(-Math.PI, Math.PI); // minimize rotations to 180
 
             // Reset all position
-            driveEncoder.setPosition(0);
+            // driveEncoder.setPosition(0);
+            driveEncoder.reset();
             turnEncoder.setPosition(getAbsoluteEncoderRad()); // set to current angle (absolute encoders never loses reading)
 
     }
@@ -84,7 +87,7 @@ public class SwerveModule {
  
     // Return all data of the position of the robot - type SwerveModuleState
     public SwerveModuleState getState() {
-        return new SwerveModuleState(driveEncoder.getVelocity(), new Rotation2d(turnEncoder.getPosition()));
+        return new SwerveModuleState(driveEncoder.getRate(), new Rotation2d(turnEncoder.getPosition()));
     }
 
     // Return all data of the position of the robot - type SwerveModulePosition
@@ -98,7 +101,7 @@ public class SwerveModule {
     // Update the distance traveled of robot
     public void updateDistance(){
         // Get the current encoder position
-        double currentPosition = driveEncoder.getPosition(); // This returns counts
+        double currentPosition = driveEncoder.getDistance(); // This returns counts
 
         // Calculate the chang in distance
         double countsChange = currentPosition - previousPosition;
