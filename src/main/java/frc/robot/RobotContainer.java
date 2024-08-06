@@ -41,7 +41,7 @@ public class RobotContainer {
 
   // Assign buttons to commands
   private void configureButtonBindings() {
-    
+    new JoystickButton(mController, 0);
   }
 
 

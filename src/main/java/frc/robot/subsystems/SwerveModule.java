@@ -21,8 +21,8 @@ public class SwerveModule {
     // motors and encoders
     public final TalonFX mDriveMotor;
     public final CANSparkMax mTurnMotor;
-    public final Encoder driveEncoder;
-    public final RelativeEncoder turnEncoder;
+    public final Encoder mDriveEncoder;
+    public final RelativeEncoder mTurnEncoder;
 
     public final PIDController turningPIDController;
 
@@ -44,19 +44,19 @@ public class SwerveModule {
             mDriveMotor.setInverted(pDriveReversed);
             mTurnMotor.setInverted(pTurnReversed);
 
-            previousPosition = 0.0;
+            previousPosition = 0.0; 
             totalDistance = 0.0;
 
             // Encoders
-            driveEncoder = new Encoder(null, null);
-            turnEncoder = mTurnMotor.getEncoder();
+            mDriveEncoder = new Encoder(null, null);
+            mTurnEncoder = mTurnMotor.getEncoder();
 
             // Conversions to meters and radians instead of rotations
             // mDriveMotor.setPositionConversionFactor(Constants.Mechanical.kDriveEncoderRot2Meter);
             // driveEncoder.setVelocityConversionFactor(Constants.Mechanical.kDriveEncoderRPM2MeterPerSec);
-            driveEncoder.setDistancePerPulse(Constants.Mechanical.kDistancePerPulse);
-            turnEncoder.setPositionConversionFactor(Constants.Mechanical.kTurningEncoderRot2Rad);
-            turnEncoder.setVelocityConversionFactor(Constants.Mechanical.kTurningEncoderRPM2RadPerSec);
+            mDriveEncoder.setDistancePerPulse(Constants.Mechanical.kDistancePerPulse);
+            mTurnEncoder.setPositionConversionFactor(Constants.Mechanical.kTurningEncoderRot2Rad);
+            mTurnEncoder.setVelocityConversionFactor(Constants.Mechanical.kTurningEncoderRPM2RadPerSec);
 
             // Absolute Encoder
             absoluteEncoder = new AnalogInput(pAbsoluteEncoderPort);
@@ -69,8 +69,8 @@ public class SwerveModule {
 
             // Reset all position
             // driveEncoder.setPosition(0);
-            driveEncoder.reset();
-            turnEncoder.setPosition(getAbsoluteEncoderRad()); // set to current angle (absolute encoders never loses reading)
+            mDriveEncoder.reset();
+            mTurnEncoder.setPosition(getAbsoluteEncoderRad()); // set to current angle (absolute encoders never loses reading)
 
     }
 
@@ -87,7 +87,7 @@ public class SwerveModule {
  
     // Return all data of the position of the robot - type SwerveModuleState
     public SwerveModuleState getState() {
-        return new SwerveModuleState(driveEncoder.getRate(), new Rotation2d(turnEncoder.getPosition()));
+        return new SwerveModuleState(mDriveEncoder.getRate(), new Rotation2d(mTurnEncoder.getPosition()));
     }
 
     // Return all data of the position of the robot - type SwerveModulePosition
@@ -101,7 +101,7 @@ public class SwerveModule {
     // Update the distance traveled of robot
     public void updateDistance(){
         // Get the current encoder position
-        double currentPosition = driveEncoder.getDistance(); // This returns counts
+        double currentPosition = mDriveEncoder.getDistance(); // This returns counts
 
         // Calculate the chang in distance
         double countsChange = currentPosition - previousPosition;
@@ -126,7 +126,7 @@ public class SwerveModule {
         state = SwerveModuleState.optimize(state, getState().angle); 
         // Set power
         mDriveMotor.set(state.speedMetersPerSecond / Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond);
-        mTurnMotor.set(turningPIDController.calculate(turnEncoder.getPosition(), state.angle.getRadians()));
+        mTurnMotor.set(turningPIDController.calculate(mTurnEncoder.getPosition(), state.angle.getRadians()));
 
         // Telemetry
         SmartDashboard.putString("Swerve[" + absoluteEncoder.getChannel() + "] state", state.toString());
