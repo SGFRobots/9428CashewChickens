@@ -40,6 +40,7 @@ public class SwerveJoystick extends Command {
         double xSpeed = mController.getLeftX();
         double ySpeed = mController.getLeftY();
         double turningSpeed = mController.getRightX();
+        System.out.println(turningSpeed);
         
         // Apply Deadzone
         xSpeed = Math.abs(xSpeed) > Constants.Mechanical.kDeadzone ? xSpeed : 0.0;

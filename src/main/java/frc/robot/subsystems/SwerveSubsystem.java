@@ -120,9 +120,17 @@ public class SwerveSubsystem extends SubsystemBase{
             module.updateDistance();
         }
 
+        double loggingState[] = {
+            modules[0].getAbsoluteEncoderRad(), 3,
+            modules[1].getAbsoluteEncoderRad(), 3,
+            modules[2].getAbsoluteEncoderRad(), 3,
+            modules[3].getAbsoluteEncoderRad(), 3
+        };
+
         // Debug telemetry
         SmartDashboard.putNumber("Robot Heading", getHeading());
         SmartDashboard.putString("Robot Location", getPose().getTranslation().toString());
+        SmartDashboard.putNumberArray("SwerveModuleStates", loggingState);
     }
 
     // Stop the robot
