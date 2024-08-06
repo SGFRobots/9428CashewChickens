@@ -1,14 +1,15 @@
 package frc.robot.subsystems;
 
-import com.kauailabs.navx.frc.AHRS;
+// import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.SPI;
+// import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -60,13 +61,15 @@ public class SwerveSubsystem extends SubsystemBase{
     };
 
     // Positions stored in gyro and mOdometer
-    private final AHRS mGyro;
+    // private final AHRS mGyro;
     private final SwerveDriveOdometry mOdometer;
 
-    // =)
+    public static final Field2d mField2d = new Field2d(); 
+
+    // =) 
     public SwerveSubsystem() {
         // Set up gyro and mOdometer
-        mGyro = new AHRS(SPI.Port.kMXP);
+        // mGyro = new AHRS(SPI.Port.kMXP);
         mOdometer = new SwerveDriveOdometry(Constants.Mechanical.kDriveKinematics,
         new Rotation2d(0), 
         new SwerveModulePosition[] {
@@ -76,12 +79,14 @@ public class SwerveSubsystem extends SubsystemBase{
             modules[3].getPosition()
         }, new Pose2d(5.0, 13.5, new Rotation2d()));
 
+        SmartDashboard.putData("Field", mField2d);
+
         // Reset gyro
         new Thread(() -> {
             try {
                 Thread.sleep(1000);
                 // Reset position
-                mGyro.reset();
+                // mGyro.reset();
             } catch (Exception e) {
             }
         }).start();
@@ -89,7 +94,7 @@ public class SwerveSubsystem extends SubsystemBase{
 
     // Get angle robot is facing
     public double getHeading() {
-        return Math.IEEEremainder(mGyro.getAngle(), 360);
+        return Math.IEEEremainder(90, 360);
     }
 
     // Get direction robot is facing

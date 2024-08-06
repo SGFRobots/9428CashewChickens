@@ -48,7 +48,7 @@ public class SwerveModule {
             totalDistance = 0.0;
 
             // Encoders
-            mDriveEncoder = new Encoder(null, null);
+            mDriveEncoder = new Encoder(pDrivePort, pTurnPort);
             mTurnEncoder = mTurnMotor.getEncoder();
 
             // Conversions to meters and radians instead of rotations
