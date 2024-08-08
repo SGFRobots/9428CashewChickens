@@ -24,13 +24,17 @@ public class SwerveModule {
     public final Encoder mDriveEncoder;
     public final RelativeEncoder mTurnEncoder;
 
-    public final PIDController turningPIDController;
+    // PID controllers
+    public final PIDController turningPID;
+    public final PIDController drivingPID;
 
     // aBSOLUTE ENCODER - knows where the wheels are facing at all times
     public final AnalogInput absoluteEncoder;
     public final boolean AbsoluteEncoderReversed;
     public final double absoluteEncoderOffset;
 
+    public SwerveModuleState currentState;
+    // public SwerveModuleState desiredState;
 
     private double previousPosition; // Store previous position to calculate delta distance
     private double totalDistance; // Track the total distance traveled
@@ -46,32 +50,34 @@ public class SwerveModule {
 
             previousPosition = 0.0; 
             totalDistance = 0.0;
-
+            
             // Encoders
             mDriveEncoder = new Encoder(pDrivePort, pTurnPort);
             mTurnEncoder = mTurnMotor.getEncoder();
-
+            
             // Conversions to meters and radians instead of rotations
             // mDriveMotor.setPositionConversionFactor(Constants.Mechanical.kDriveEncoderRot2Meter);
             // driveEncoder.setVelocityConversionFactor(Constants.Mechanical.kDriveEncoderRPM2MeterPerSec);
             mDriveEncoder.setDistancePerPulse(Constants.Mechanical.kDistancePerPulse);
             mTurnEncoder.setPositionConversionFactor(Constants.Mechanical.kTurningEncoderRot2Rad);
             mTurnEncoder.setVelocityConversionFactor(Constants.Mechanical.kTurningEncoderRPM2RadPerSec);
-
+            
             // Absolute Encoder
             absoluteEncoder = new AnalogInput(pAbsoluteEncoderPort);
             AbsoluteEncoderReversed = pAbsoluteEncoderReversed;
             absoluteEncoderOffset = pAbsoluteEncoderOffset;
-
+            
             //PID Controller - what is this
-            turningPIDController = new PIDController(0.5, 0, 0);
-            turningPIDController.enableContinuousInput(-Math.PI, Math.PI); // minimize rotations to 180
-
+            turningPID = new PIDController(0.5, 0, 0);
+            turningPID.enableContinuousInput(-Math.PI, Math.PI); // minimize rotations to 180
+            drivingPID = new PIDController(0.5, 0, 0);
+            
             // Reset all position
             // driveEncoder.setPosition(0);
             mDriveEncoder.reset();
             mTurnEncoder.setPosition(getAbsoluteEncoderRad()); // set to current angle (absolute encoders never loses reading)
-
+            
+            currentState = new SwerveModuleState(0, new Rotation2d(getAbsoluteEncoderRad()));
     }
 
     // get current angle in radians
@@ -87,7 +93,7 @@ public class SwerveModule {
  
     // Return all data of the position of the robot - type SwerveModuleState
     public SwerveModuleState getState() {
-        return new SwerveModuleState(mDriveEncoder.getRate(), new Rotation2d(mTurnEncoder.getPosition()));
+        return currentState;
     }
 
     // Return all data of the position of the robot - type SwerveModulePosition
@@ -116,21 +122,21 @@ public class SwerveModule {
 
 
     // Move
-    public void setDesiredState(SwerveModuleState state) {
+    public void setDesiredState(SwerveModuleState pNewState) {
         // Don't move back to 0 after moving
-        if (Math.abs(state.speedMetersPerSecond) < 0.001) {
+        if (Math.abs(pNewState.speedMetersPerSecond) < 0.001) {
             stop();
             return;
         }
         // Optimize angle (turn no more than 90 degrees)
-        state = SwerveModuleState.optimize(state, getState().angle); 
+        currentState = SwerveModuleState.optimize(pNewState, getState().angle); 
         // Set power
-        mDriveMotor.set(state.speedMetersPerSecond / Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond);
-        mTurnMotor.set(turningPIDController.calculate(mTurnEncoder.getPosition(), state.angle.getRadians()));
+        mDriveMotor.set(drivingPID.calculate(mDriveEncoder.getDistance(), currentState.speedMetersPerSecond / Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond));
+        mTurnMotor.set(turningPID.calculate(mTurnEncoder.getPosition(), currentState.angle.getRadians()));
 
         // Telemetry
-        SmartDashboard.putString("Swerve[" + absoluteEncoder.getChannel() + "] state", state.toString());
-
+        SmartDashboard.putString("Swerve[" + absoluteEncoder.getChannel() + "] state", currentState.toString());
+        
     }
 
     // Stop moving

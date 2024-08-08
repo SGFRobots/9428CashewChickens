@@ -38,16 +38,17 @@ public final class Constants {
         public static final int kBLDriveAbsoluteEncoderPort = 2;
         public static final int kFRDriveAbsoluteEncoderPort = 1;
         public static final int kBRDriveAbsoluteEncoderPort = 3;
-    }
 
+        public static final int kGyroPort = 2;
+    }
     public static final class Reversed {
         public static final boolean kFLTurningEncoderReversed = true;
         public static final boolean kBLTurningEncoderReversed = true;
         public static final boolean kFRTurningEncoderReversed = true;
         public static final boolean kBRTurningEncoderReversed = true;
     
-        public static final boolean kFLDriveEncoderReversed = true;
-        public static final boolean kBLDriveEncoderReversed = true;
+        public static final boolean kFLDriveEncoderReversed = false;
+        public static final boolean kBLDriveEncoderReversed = false;
         public static final boolean kFRDriveEncoderReversed = false;
         public static final boolean kBRDriveEncoderReversed = false;
     
@@ -68,26 +69,28 @@ public final class Constants {
         public static final double kDriveEncoderRPM2MeterPerSec = kDriveEncoderRot2Meter / 60;
         public static final double kTurningEncoderRPM2RadPerSec = kTurningEncoderRot2Rad / 60;
         
-        public static final double kTrackWidth = 0.64;
-        // Distance between right and left wheels
-        public static final double kWheelBase = 0.64;
+        // Distance between right and left wheels (in meters)
+        public static final double kRobotWidth = 0.64;
+        // Distance between front and back wheels (in meters)
+        public static final double kRobotLength = 0.64;
 
         public static final double kFLDriveAbsoluteEncoderOffsetRad = -0.254;
         public static final double kBLDriveAbsoluteEncoderOffsetRad = -1.252;
         public static final double kFRDriveAbsoluteEncoderOffsetRad = -1.816;
         public static final double kBRDriveAbsoluteEncoderOffsetRad = -4.811;
     
-        // Distance between front and back wheels
+        // Kinematics map of robot
+        // FL, FR, BL, BR
         public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
-            new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
-            new Translation2d(kWheelBase / 2, kTrackWidth / 2),
-                new Translation2d(-kWheelBase / 2, -kTrackWidth / 2),
-                new Translation2d(-kWheelBase / 2, kTrackWidth / 2));
-    
+            new Translation2d(kRobotLength / 2, kRobotWidth / 2),
+            new Translation2d(kRobotLength / 2, -kRobotWidth / 2),
+            new Translation2d(-kRobotLength / 2, kRobotWidth / 2),
+            new Translation2d(-kRobotLength / 2, -kRobotWidth / 2));
+        
         public static final double kDeadzone = 0.05;
     
         public static final double kPhysicalMaxSpeedMetersPerSecond = 5;
-        public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = kPhysicalMaxSpeedMetersPerSecond / kTrackWidth / 2;
+        public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = kPhysicalMaxSpeedMetersPerSecond / kRobotWidth / 2;
     
         public static final double kTeleDriveMaxSpeedMetersPerSecond = kPhysicalMaxSpeedMetersPerSecond / 4;
         public static final double kTeleDriveMaxAngularSpeedRadiansPerSecond = kPhysicalMaxAngularSpeedRadiansPerSecond / 4;

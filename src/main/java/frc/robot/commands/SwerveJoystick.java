@@ -37,32 +37,21 @@ public class SwerveJoystick extends Command {
     @Override
     public void execute() {
         // Get joystick inputs
-        double xSpeed = mController.getLeftX();
-        double ySpeed = mController.getLeftY();
-        double turningSpeed = mController.getRightX();
-        System.out.println(turningSpeed);
-        
+        double xSpeed = -mController.getLeftY();
+        double ySpeed = -mController.getLeftX();
+        double turningSpeed = -mController.getRightX();        
         // Apply Deadzone
         xSpeed = Math.abs(xSpeed) > Constants.Mechanical.kDeadzone ? xSpeed : 0.0;
         ySpeed = Math.abs(ySpeed) > Constants.Mechanical.kDeadzone ? ySpeed : 0.0;
         turningSpeed = Math.abs(turningSpeed) > Constants.Mechanical.kDeadzone ? turningSpeed : 0.0;
 
-        // Make Driving Smoother (No Wheelies)
+        // Make Driving Smoother (No Wheelies) Привіт, мене звати Саша, я тут новий кодер
         xSpeed = xLimiter.calculate(xSpeed) * Constants.Mechanical.kTeleDriveMaxSpeedMetersPerSecond;
         ySpeed = yLimiter.calculate(ySpeed) * Constants.Mechanical.kTeleDriveMaxSpeedMetersPerSecond;
         turningSpeed = turningLimiter.calculate(turningSpeed) * Constants.Mechanical.kTeleDriveMaxAngularSpeedRadiansPerSecond;
 
-        // Set desire chassis speeds
-        // Field Orientation
-        ChassisSpeeds chassisSpeed;
-        chassisSpeed = ChassisSpeeds.fromFieldRelativeSpeeds(
-            xSpeed, ySpeed, turningSpeed, mSwerveSubsystem.getRotation2d());
-
-        // Convert chassis speeds to module states
-        SwerveModuleState[] moduleStates = Constants.Mechanical.kDriveKinematics.toSwerveModuleStates(chassisSpeed);
-
         // Drive
-        mSwerveSubsystem.setModuleStates(moduleStates);
+        mSwerveSubsystem.setModuleStates(xSpeed, ySpeed, turningSpeed);
         
     }
 
