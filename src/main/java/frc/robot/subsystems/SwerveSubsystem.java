@@ -117,7 +117,6 @@ public class SwerveSubsystem extends SubsystemBase{
             modules[3].getPosition()
         });
         SmartDashboard.putData("Field", mField2d);
-
         yaw = 0;
 
         // Reset gyro
@@ -160,10 +159,6 @@ public class SwerveSubsystem extends SubsystemBase{
             modules[2].getPosition(),
             modules[3].getPosition()});
 
-        // Update distances for all modules
-        for (SwerveModule module : modules) {
-            module.updateDistance();
-        }
         // Update Pose for swerve modules - Position of the rotation and the translation matters
         for (int i = 0; i < modules.length; i++){
             Translation2d updatedModulePosition = kModulePositions[i].rotateBy(mGyro.getRotation2d()).plus(getPose().getTranslation());
@@ -172,7 +167,7 @@ public class SwerveSubsystem extends SubsystemBase{
         }
         // Sets robot position on the field
         mField2d.setRobotPose(getPose());
-        mField2d.getObject(Constants.ModuleNameSim).setPoses(mModulePose);
+        // mField2d.getObject(Constants.ModuleNameSim).setPoses(mModulePose);
         
         // Logs in Swerve Tab
         double loggingState[] = {
@@ -213,7 +208,7 @@ public class SwerveSubsystem extends SubsystemBase{
         // Field Orientation
         ChassisSpeeds chassisSpeed;
         chassisSpeed = ChassisSpeeds.fromFieldRelativeSpeeds(
-            xSpeed, ySpeed, turningSpeed, getRotation2d());
+            xSpeed, ySpeed, turningSpeed, mGyro.getRotation2d());
 
         // Convert chassis speeds to module states
         SwerveModuleState[] moduleStates = Constants.Mechanical.kDriveKinematics.toSwerveModuleStates(chassisSpeed);
@@ -247,7 +242,7 @@ public class SwerveSubsystem extends SubsystemBase{
         };
         ChassisSpeeds chassisSpeed = Constants.Mechanical.kDriveKinematics.toChassisSpeeds(moduleStates);
         yaw += chassisSpeed.omegaRadiansPerSecond * 0.02;
-        mGyroSim.setAngle(Units.radiansToDegrees(yaw));
+        mGyroSim.setAngle(-Units.radiansToDegrees(yaw));
     }
     
     //their get heading is different than ours ... why ... our getheading is definitely wrong. i thought that this morning too ok that makes sense ill rewrite it okkk

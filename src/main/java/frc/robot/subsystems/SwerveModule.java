@@ -39,8 +39,6 @@ public class SwerveModule {
     public SwerveModuleState currentState;
     // public SwerveModuleState desiredState;
 
-    private double previousPosition; // Store previous position to calculate delta distance
-    private double totalDistance; // Track the total distance traveled
     private double turnOutput;
     private double driveOutput;
     private double driveDistance;
@@ -64,9 +62,8 @@ public class SwerveModule {
             mDriveMotor.setInverted(pDriveReversed);
             mTurnMotor.setInverted(pTurnReversed);
 
-            previousPosition = 0.0; 
-            totalDistance = 0.0;
             
+
             // Encoders
             mDriveEncoder = new Encoder(pDriveEncoderPorts[0], pDriveEncoderPorts[1]);
             mTurnEncoder = new Encoder(pTurnEncoderPorts[0], pTurnEncoderPorts[1]);
@@ -129,27 +126,9 @@ public class SwerveModule {
     // Return all data of the position of the robot - type SwerveModulePosition
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
-            totalDistance,
-            new Rotation2d(getAbsoluteEncoderRad())
+            driveDistance, new Rotation2d(turnDistance)
         );
     }
-
-    // Update the distance traveled of robot
-    public void updateDistance(){
-        // Get the current encoder position
-        double currentPosition = mDriveEncoder.getDistance(); // This returns counts
-
-        // Calculate the chang in distance
-        double countsChange = currentPosition - previousPosition;
-        double distanceChange = (countsChange / Constants.Mechanical.kDriveEncoderResolution) * Constants.Mechanical.kWheelCircumferenceMeters;
-
-        // Update total distance
-        totalDistance += distanceChange;
-
-        // Update previous position
-        previousPosition = currentPosition;
-    }
-
 
     // Move
     public void setDesiredState(SwerveModuleState pNewState) {
@@ -161,14 +140,13 @@ public class SwerveModule {
         // Optimize angle (turn no more than 90 degrees)
         currentState = SwerveModuleState.optimize(pNewState, getState().angle); 
         // Set power
-        driveOutput = drivingPID.calculate(mDriveEncoder.getDistance(), currentState.speedMetersPerSecond / Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond);
+        driveOutput = drivingPID.calculate(mDriveEncoder.getDistance(), currentState.speedMetersPerSecond);
         turnOutput = turningPID.calculate(mTurnEncoder.getDistance(), currentState.angle.getRadians());
         mDriveMotor.set(driveOutput);
         mTurnMotor.set(turnOutput);
 
         // Telemetry
         SmartDashboard.putString("Swerve[" + absoluteEncoder.getChannel() + "] state", currentState.toString());
-
     }
 
     //ok we need this to reset the encoders you do realize it has a built in chat function wjhattttttttttttt reallu? yeah click on the bar below you should find it

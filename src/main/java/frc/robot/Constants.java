@@ -131,7 +131,9 @@ public final class Constants {
         public static final double kTurningEncoderResolution = 42;
         public static final double kWheelCircumferenceMeters = kWheelDiameterMeters * Math.PI;
 
-        public static final double kDistancePerPulse = 1/kDriveEncoderResolution;
+        public static final double kEncoderCPR = 1024;
+
+        public static final double kDistancePerPulse = (kWheelCircumferenceMeters) / kEncoderCPR;
     }
 
     public static final class Controllers {
