@@ -18,6 +18,8 @@ import edu.wpi.first.math.geometry.Translation2d;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {        
+    public static final String ModuleNameSim = "Swerve Modules";
+    
     public static final class MotorPorts {
         public static final int kFLDriveMotorPort = 8;
         public static final int kBLDriveMotorPort = 2;
@@ -78,14 +80,20 @@ public final class Constants {
         public static final double kBLDriveAbsoluteEncoderOffsetRad = -1.252;
         public static final double kFRDriveAbsoluteEncoderOffsetRad = -1.816;
         public static final double kBRDriveAbsoluteEncoderOffsetRad = -4.811;
-    
-        // Kinematics map of robot
-        // FL, FR, BL, BR
-        public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
+        // Module Positions on Robot
+        public static final Translation2d[] kModulePositions = {
             new Translation2d(kRobotLength / 2, kRobotWidth / 2),
             new Translation2d(kRobotLength / 2, -kRobotWidth / 2),
             new Translation2d(-kRobotLength / 2, kRobotWidth / 2),
-            new Translation2d(-kRobotLength / 2, -kRobotWidth / 2));
+            new Translation2d(-kRobotLength / 2, -kRobotWidth / 2)
+        };
+        // Kinematics map of robot
+        // FL, FR, BL, BR
+        public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
+            kModulePositions[0],
+            kModulePositions[1],
+            kModulePositions[2],
+            kModulePositions[3]);
         
         public static final double kDeadzone = 0.05;
     

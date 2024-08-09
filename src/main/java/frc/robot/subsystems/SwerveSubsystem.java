@@ -7,16 +7,22 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.simulation.ADXRS450_GyroSim;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.AnalogGyro;
+// import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.util.Units;
+
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import static frc.robot.Constants.Mechanical.kModulePositions;
+
 
 
 public class SwerveSubsystem extends SubsystemBase{
@@ -57,7 +63,7 @@ public class SwerveSubsystem extends SubsystemBase{
             Constants.MotorPorts.kBRDriveMotorPort,
             Constants.MotorPorts.kBRTurningMotorPort,
             Constants.Reversed.kBRDriveEncoderReversed,
-            Constants.Reversed.kBRTurningEncoderReversed, // THIS IS REVERSED
+            Constants.Reversed.kBRTurningEncoderReversed,
             Constants.MotorPorts.kBRDriveAbsoluteEncoderPort,
             Constants.Mechanical.kBRDriveAbsoluteEncoderOffsetRad,
             Constants.Reversed.kBRDriveAbsoluteEncoderReversed),
@@ -67,20 +73,25 @@ public class SwerveSubsystem extends SubsystemBase{
     // Positions stored in gyro and mOdometer
     // private final AHRS mGyro;
     // private final AnalogGyro mGyro;
-    private final ADXRS450_Gyro mGyro;
+    private final ADXRS450_Gyro mGyro = new ADXRS450_Gyro();
+    private final ADXRS450_GyroSim mGyroSim = new ADXRS450_GyroSim(mGyro);
     private final SwerveDriveOdometry mOdometer;
-    private final ADXRS450_GyroSim mGyroSim;
+    
 
     public static final Field2d mField2d = new Field2d(); 
 
+    Pose2d[] mModulePose = {
+            new Pose2d(),
+            new Pose2d(),
+            new Pose2d(),
+            new Pose2d()
+    };
     // =) 
     public SwerveSubsystem() {
         // Set up gyro and mOdometer
         // mGyro = new AHRS(SPI.Port.kMXP);
         // mGyro = new AnalogGyro(1);
-        mGyro = new ADXRS450_Gyro();
-        mGyroSim = new ADXRS450_GyroSim(mGyro);
-        mGyroSim.setAngle(34);
+
         mOdometer = new SwerveDriveOdometry(Constants.Mechanical.kDriveKinematics,
         mGyro.getRotation2d(), 
         new SwerveModulePosition[] {
@@ -88,7 +99,7 @@ public class SwerveSubsystem extends SubsystemBase{
             modules[1].getPosition(),
             modules[2].getPosition(),
             modules[3].getPosition()
-        }, new Pose2d(5.0, 13.5, mGyro.getRotation2d()));
+        });
         SmartDashboard.putData("Field", mField2d);
 
         // Reset gyro
@@ -125,16 +136,27 @@ public class SwerveSubsystem extends SubsystemBase{
     @Override
     public void periodic() {
         // update position
-        mOdometer.update(getRotation2d(), new SwerveModulePosition[] {
+        mOdometer.update(mGyro.getRotation2d(), new SwerveModulePosition[] {
             modules[0].getPosition(),
             modules[1].getPosition(),
             modules[2].getPosition(),
             modules[3].getPosition()});
+
         // Update distances for all modules
         for (SwerveModule module : modules) {
             module.updateDistance();
         }
-
+        // Update Pose for swerve modules - Position of the rotation and the translation matters
+        for (int i = 0; i < modules.length; i++){
+            Translation2d updatedModulePosition = kModulePositions[i].rotateBy(mGyro.getRotation2d()).plus(getPose().getTranslation());
+            // Module heading is the angle relative to the chasis heading
+            mModulePose[i] = new Pose2d(updatedModulePosition, modules[i].getState().angle.plus(getPose().getRotation()));
+        }
+        // Sets robot position on the field
+        mField2d.setRobotPose(getPose());
+        mField2d.getObject(Constants.ModuleNameSim).setPoses(mModulePose);
+        
+        // Logs in Swerve Tab
         double loggingState[] = {
             modules[0].getState().angle.getDegrees(), modules[0].getState().speedMetersPerSecond,
             modules[1].getState().angle.getDegrees(), modules[1].getState().speedMetersPerSecond,
@@ -147,7 +169,9 @@ public class SwerveSubsystem extends SubsystemBase{
         SmartDashboard.putString("Robot Location", getPose().getTranslation().toString());
         SmartDashboard.putNumberArray("SwerveModuleLOGGINGStates", loggingState);
 
-        System.out.println(mGyro.toString());
+    }
+    public void resetOdometry(Pose2d pose) {
+
     }
 
     // Stop the robot
