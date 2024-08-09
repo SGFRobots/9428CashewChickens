@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -31,10 +32,15 @@ public final class Constants {
         public static final int kFRTurningMotorPort = 5;
         public static final int kBRTurningMotorPort = 3;
 
-        public static final int kFLEncoderPort = 0;
-        public static final int kBLEncoderPort = 0;
-        public static final int kFREncoderPort = 0;
-        public static final int kBREncoderPort = 0;
+        public static final int[] kFLDriveEncoderPorts = {9, 10};
+        public static final int[] kBLDriveEncoderPorts = {11, 12};
+        public static final int[] kFRDriveEncoderPorts = {13, 14};
+        public static final int[] kBRDriveEncoderPorts = {15, 16};
+
+        public static final int[] kFLTurnEncoderPorts = {17,18};
+        public static final int[] kBLTurnEncoderPorts = {19,20};
+        public static final int[] kFRTurnEncoderPorts = {21,22};
+        public static final int[] kBRTurnEncoderPorts = {23,24};
         
         public static final int kFLDriveAbsoluteEncoderPort = 0;
         public static final int kBLDriveAbsoluteEncoderPort = 2;
@@ -44,6 +50,16 @@ public final class Constants {
         public static final int kGyroPort = 2;
     }
     public static final class Reversed {
+        public static final boolean kFLTurningReversed = true;
+        public static final boolean kBLTurningReversed = true;
+        public static final boolean kFRTurningReversed = true;
+        public static final boolean kBRTurningReversed = true;
+    
+        public static final boolean kFLDriveReversed = false;
+        public static final boolean kBLDriveReversed = false;
+        public static final boolean kFRDriveReversed = false;
+        public static final boolean kBRDriveReversed = false;
+
         public static final boolean kFLTurningEncoderReversed = true;
         public static final boolean kBLTurningEncoderReversed = true;
         public static final boolean kFRTurningEncoderReversed = true;
@@ -70,6 +86,12 @@ public final class Constants {
         public static final double kTurningEncoderRot2Rad = kTurningMotorGearRatio * 2 * Math.PI;
         public static final double kDriveEncoderRPM2MeterPerSec = kDriveEncoderRot2Meter / 60;
         public static final double kTurningEncoderRPM2RadPerSec = kTurningEncoderRot2Rad / 60;
+        // The SysId tool provides a convenient method for obtaining these values for your robot.
+        // the values being the volt related lines below 
+        public static final double kVoltSecondPerRadian = 3.41;
+        public static final double kVoltSecondsSquaredPerRadian = 0.111;
+        public static final DCMotor kDriveGearBox = DCMotor.getKrakenX60(1);
+        public static final DCMotor kTurnGearBox = DCMotor.getKrakenX60(1);
         
         // Distance between right and left wheels (in meters)
         public static final double kRobotWidth = 0.64;
@@ -97,7 +119,7 @@ public final class Constants {
         
         public static final double kDeadzone = 0.05;
     
-        public static final double kPhysicalMaxSpeedMetersPerSecond = 5;
+        public static final double kPhysicalMaxSpeedMetersPerSecond = 10;
         public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = kPhysicalMaxSpeedMetersPerSecond / kRobotWidth / 2;
     
         public static final double kTeleDriveMaxSpeedMetersPerSecond = kPhysicalMaxSpeedMetersPerSecond / 4;

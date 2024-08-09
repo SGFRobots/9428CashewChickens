@@ -32,41 +32,56 @@ public class SwerveSubsystem extends SubsystemBase{
         new SwerveModule(
             Constants.MotorPorts.kFLDriveMotorPort,
             Constants.MotorPorts.kFLTurningMotorPort,
-            Constants.Reversed.kFLDriveEncoderReversed,
-            Constants.Reversed.kFLTurningEncoderReversed,
+            Constants.Reversed.kFLDriveReversed,
+            Constants.Reversed.kFLTurningReversed,
             Constants.MotorPorts.kFLDriveAbsoluteEncoderPort,
             Constants.Mechanical.kFLDriveAbsoluteEncoderOffsetRad,
-            Constants.Reversed.kFLDriveAbsoluteEncoderReversed),
+            Constants.Reversed.kFLDriveAbsoluteEncoderReversed,
+            Constants.MotorPorts.kFLDriveEncoderPorts,
+            Constants.MotorPorts.kFLTurnEncoderPorts,
+            Constants.Reversed.kFLDriveEncoderReversed,
+            Constants.Reversed.kFLTurningEncoderReversed),
         
         // Front Right
         new SwerveModule(
             Constants.MotorPorts.kFRDriveMotorPort,
             Constants.MotorPorts.kFRTurningMotorPort,
-            Constants.Reversed.kFRDriveEncoderReversed,
-            Constants.Reversed.kFRTurningEncoderReversed,
+            Constants.Reversed.kFRDriveReversed,
+            Constants.Reversed.kFRTurningReversed,
             Constants.MotorPorts.kFRDriveAbsoluteEncoderPort,
             Constants.Mechanical.kFRDriveAbsoluteEncoderOffsetRad,
-            Constants.Reversed.kFRDriveAbsoluteEncoderReversed),
+            Constants.Reversed.kFRDriveAbsoluteEncoderReversed,
+            Constants.MotorPorts.kFRDriveEncoderPorts,
+            Constants.MotorPorts.kFRTurnEncoderPorts,
+            Constants.Reversed.kFRDriveEncoderReversed,
+            Constants.Reversed.kFRTurningEncoderReversed),
         
         // Back Left
         new SwerveModule(
             Constants.MotorPorts.kBLDriveMotorPort,
             Constants.MotorPorts.kBLTurningMotorPort,
-            Constants.Reversed.kBLDriveEncoderReversed,
-            Constants.Reversed.kBLTurningEncoderReversed,
+            Constants.Reversed.kBLDriveReversed,
+            Constants.Reversed.kBLTurningReversed,
             Constants.MotorPorts.kBLDriveAbsoluteEncoderPort,
             Constants.Mechanical.kBLDriveAbsoluteEncoderOffsetRad,
-            Constants.Reversed.kBLDriveAbsoluteEncoderReversed),
-        
+            Constants.Reversed.kBLDriveAbsoluteEncoderReversed,
+            Constants.MotorPorts.kBLDriveEncoderPorts,
+            Constants.MotorPorts.kBLTurnEncoderPorts,
+            Constants.Reversed.kBLDriveEncoderReversed,
+            Constants.Reversed.kBLTurningEncoderReversed),        
         // Back Right
         new SwerveModule(
             Constants.MotorPorts.kBRDriveMotorPort,
             Constants.MotorPorts.kBRTurningMotorPort,
-            Constants.Reversed.kBRDriveEncoderReversed,
-            Constants.Reversed.kBRTurningEncoderReversed,
+            Constants.Reversed.kBRDriveReversed,
+            Constants.Reversed.kBRTurningReversed,
             Constants.MotorPorts.kBRDriveAbsoluteEncoderPort,
             Constants.Mechanical.kBRDriveAbsoluteEncoderOffsetRad,
-            Constants.Reversed.kBRDriveAbsoluteEncoderReversed),
+            Constants.Reversed.kBRDriveAbsoluteEncoderReversed,
+            Constants.MotorPorts.kBRDriveEncoderPorts,
+            Constants.MotorPorts.kBRTurnEncoderPorts,
+            Constants.Reversed.kBRDriveEncoderReversed,
+            Constants.Reversed.kBRTurningEncoderReversed),
         
     };
 
@@ -77,7 +92,8 @@ public class SwerveSubsystem extends SubsystemBase{
     private final ADXRS450_GyroSim mGyroSim = new ADXRS450_GyroSim(mGyro); // this? ? ya its only used in this file yes bc its the gyro yeah i knpow hey what do you call the part of the class before the constructor where you declare all variables? is this a test or do you not know i do not know me neither ok make up a name uhhh Decelorations no a related name yeah thats where you declare your variabbles oh you mean declarations yeah ok
     private final SwerveDriveOdometry mOdometer;
     
-
+    private double yaw;
+    
     public static final Field2d mField2d = new Field2d(); 
 
     Pose2d[] mModulePose = {
@@ -101,6 +117,8 @@ public class SwerveSubsystem extends SubsystemBase{
             modules[3].getPosition()
         });
         SmartDashboard.putData("Field", mField2d);
+
+        yaw = 0;
 
         // Reset gyro
         new Thread(() -> {
@@ -166,6 +184,7 @@ public class SwerveSubsystem extends SubsystemBase{
 
         // Debug telemetry
         SmartDashboard.putNumber("Robot Heading", mGyro.getAngle());
+        SmartDashboard.putString("Gyro", mGyro.getRotation2d().toString());
         SmartDashboard.putString("Robot Location", getPose().getTranslation().toString());
         SmartDashboard.putNumberArray("SwerveModuleLOGGINGStates", loggingState);
 
@@ -213,9 +232,27 @@ public class SwerveSubsystem extends SubsystemBase{
             module.resetEncoders();
         }
     }
+
+    @Override
+    public void simulationPeriodic() {
+        for (SwerveModule module : modules) {
+            module.simulationPeriodic(0.02);
+        }
+
+        SwerveModuleState[] moduleStates = {
+            modules[0].getState(),
+            modules[1].getState(),
+            modules[2].getState(),
+            modules[3].getState()
+        };
+        ChassisSpeeds chassisSpeed = Constants.Mechanical.kDriveKinematics.toChassisSpeeds(moduleStates);
+        yaw += chassisSpeed.omegaRadiansPerSecond * 0.02;
+        mGyroSim.setAngle(Units.radiansToDegrees(yaw));
+    }
     
     //their get heading is different than ours ... why ... our getheading is definitely wrong. i thought that this morning too ok that makes sense ill rewrite it okkk
     // public returnvalue functionname(parameters) {
     //     actions semicolon
     // } // it is the format when defining a methodi know
-} ///woah what does this one do wow thats cool
+} ///woah what does this one do wow thats cool 
+//  04/19/2009

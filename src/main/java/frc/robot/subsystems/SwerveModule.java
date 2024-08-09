@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.EncoderSim;
+import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import frc.robot.Constants;
 
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -14,6 +15,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -39,13 +41,21 @@ public class SwerveModule {
 
     private double previousPosition; // Store previous position to calculate delta distance
     private double totalDistance; // Track the total distance traveled
+    private double turnOutput;
+    private double driveOutput;
+    private double driveDistance;
+    private double turnDistance;
 
     // Simulated hardwares
     public final EncoderSim mDriveEncoderSim;
     public final EncoderSim mTurnEncoderSim;
+    public final FlywheelSim mDriveMotorSim;
+    public final FlywheelSim mTurnMotorSim;
 
     public SwerveModule(
-        int pDrivePort, int pTurnPort, boolean pDriveReversed, boolean pTurnReversed, int pAbsoluteEncoderPort, double pAbsoluteEncoderOffset, boolean pAbsoluteEncoderReversed) {
+        int pDrivePort, int pTurnPort, boolean pDriveReversed, boolean pTurnReversed,
+        int pAbsoluteEncoderPort, double pAbsoluteEncoderOffset, boolean pAbsoluteEncoderReversed,
+        int[] pDriveEncoderPorts, int[] pTurnEncoderPorts, boolean pDEncoderReversed, boolean pTEncoderReversed) {
 
             // Motors
             // ignore this comment
@@ -58,13 +68,22 @@ public class SwerveModule {
             totalDistance = 0.0;
             
             // Encoders
-            mDriveEncoder = new Encoder(pDrivePort, pTurnPort);
-            mTurnEncoder = new Encoder(pDrivePort, pTurnPort);
+            mDriveEncoder = new Encoder(pDriveEncoderPorts[0], pDriveEncoderPorts[1]);
+            mTurnEncoder = new Encoder(pTurnEncoderPorts[0], pTurnEncoderPorts[1]);
+            mDriveEncoder.setReverseDirection(pDEncoderReversed);
+            mTurnEncoder.setReverseDirection(pTEncoderReversed);
 
             // Simulated Hardwarwes
             mDriveEncoderSim = new EncoderSim(mDriveEncoder);
             mTurnEncoderSim = new EncoderSim(mTurnEncoder);
-            
+            mDriveMotorSim = new FlywheelSim(
+                LinearSystemId.identifyVelocitySystem(Constants.Mechanical.kVoltSecondPerRadian, Constants.Mechanical.kVoltSecondsSquaredPerRadian),
+                Constants.Mechanical.kDriveGearBox, Constants.Mechanical.kDriveMotorGearRatio);
+            mTurnMotorSim = new FlywheelSim(LinearSystemId.identifyVelocitySystem(Constants.Mechanical.kVoltSecondPerRadian, Constants.Mechanical.kVoltSecondsSquaredPerRadian),
+                Constants.Mechanical.kTurnGearBox, Constants.Mechanical.kTurningMotorGearRatio);
+            driveDistance = 0;
+            turnDistance = 0;
+
             // Conversions to meters and radians instead of rotations
             // mDriveMotor.setPositionConversionFactor(Constants.Mechanical.kDriveEncoderRot2Meter);
             // driveEncoder.setVelocityConversionFactor(Constants.Mechanical.kDriveEncoderRPM2MeterPerSec);
@@ -142,8 +161,10 @@ public class SwerveModule {
         // Optimize angle (turn no more than 90 degrees)
         currentState = SwerveModuleState.optimize(pNewState, getState().angle); 
         // Set power
-        mDriveMotor.set(drivingPID.calculate(mDriveEncoder.getDistance(), currentState.speedMetersPerSecond / Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond));
-        mTurnMotor.set(turningPID.calculate(mTurnEncoder.getDistance(), currentState.angle.getRadians()));
+        driveOutput = drivingPID.calculate(mDriveEncoder.getDistance(), currentState.speedMetersPerSecond / Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond);
+        turnOutput = turningPID.calculate(mTurnEncoder.getDistance(), currentState.angle.getRadians());
+        mDriveMotor.set(driveOutput);
+        mTurnMotor.set(turnOutput);
 
         // Telemetry
         SmartDashboard.putString("Swerve[" + absoluteEncoder.getChannel() + "] state", currentState.toString());
@@ -162,6 +183,22 @@ public class SwerveModule {
     public void stop() {
         mDriveMotor.set(0);
         mTurnMotor.set(0);
+    }
+
+    public void simulationPeriodic(double dt) {
+        mDriveMotorSim.setInputVoltage(driveOutput / Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond * RobotController.getBatteryVoltage());
+        mTurnMotorSim.setInputVoltage(turnOutput / Constants.Mechanical.kPhysicalMaxAngularSpeedRadiansPerSecond * RobotController.getBatteryVoltage());
+
+        mDriveMotorSim.update(dt);
+        mTurnMotorSim.update(dt);
+
+        driveDistance += mDriveMotorSim.getAngularVelocityRadPerSec() * dt;
+        mDriveEncoderSim.setDistance(driveDistance);
+        mDriveEncoderSim.setRate(mDriveMotorSim.getAngularVelocityRadPerSec());
+
+        turnDistance += mTurnMotorSim.getAngularVelocityRadPerSec() * dt;
+        mTurnEncoderSim.setDistance(turnDistance);
+        mTurnEncoderSim.setRate(mTurnMotorSim.getAngularVelocityRadPerSec());
     }
 }// should i take form the one i was using or the falcon one 
 // idk what are you diong? keep on doing what i was doing in the swerve subsystem what are you doing there? what are you trying to implememtnt well i was seeing what they have that we dont and implementing it over here. 
