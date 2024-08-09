@@ -48,6 +48,7 @@ public class SwerveModule {
         int pDrivePort, int pTurnPort, boolean pDriveReversed, boolean pTurnReversed, int pAbsoluteEncoderPort, double pAbsoluteEncoderOffset, boolean pAbsoluteEncoderReversed) {
 
             // Motors
+            // ignore this comment
             mDriveMotor = new TalonFX(pDrivePort);
             mTurnMotor = new CANSparkMax(pTurnPort, MotorType.kBrushless);
             mDriveMotor.setInverted(pDriveReversed);
