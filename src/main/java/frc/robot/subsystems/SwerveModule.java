@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import frc.robot.Constants;
 
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -22,7 +23,7 @@ public class SwerveModule {
     public final TalonFX mDriveMotor;
     public final CANSparkMax mTurnMotor;
     public final Encoder mDriveEncoder;
-    public final RelativeEncoder mTurnEncoder;
+    public final Encoder mTurnEncoder;
 
     // PID controllers
     public final PIDController turningPID;
@@ -39,6 +40,10 @@ public class SwerveModule {
     private double previousPosition; // Store previous position to calculate delta distance
     private double totalDistance; // Track the total distance traveled
 
+    // Simulated hardwares
+    public final EncoderSim mDriveEncoderSim;
+    public final EncoderSim mTurnEncoderSim;
+
     public SwerveModule(
         int pDrivePort, int pTurnPort, boolean pDriveReversed, boolean pTurnReversed, int pAbsoluteEncoderPort, double pAbsoluteEncoderOffset, boolean pAbsoluteEncoderReversed) {
 
@@ -53,14 +58,19 @@ public class SwerveModule {
             
             // Encoders
             mDriveEncoder = new Encoder(pDrivePort, pTurnPort);
-            mTurnEncoder = mTurnMotor.getEncoder();
+            mTurnEncoder = new Encoder(pDrivePort, pTurnPort);
+
+            // Simulated Hardwarwes
+            mDriveEncoderSim = new EncoderSim(mDriveEncoder);
+            mTurnEncoderSim = new EncoderSim(mTurnEncoder);
             
             // Conversions to meters and radians instead of rotations
             // mDriveMotor.setPositionConversionFactor(Constants.Mechanical.kDriveEncoderRot2Meter);
             // driveEncoder.setVelocityConversionFactor(Constants.Mechanical.kDriveEncoderRPM2MeterPerSec);
             mDriveEncoder.setDistancePerPulse(Constants.Mechanical.kDistancePerPulse);
-            mTurnEncoder.setPositionConversionFactor(Constants.Mechanical.kTurningEncoderRot2Rad);
-            mTurnEncoder.setVelocityConversionFactor(Constants.Mechanical.kTurningEncoderRPM2RadPerSec);
+            mTurnEncoder.setDistancePerPulse(Constants.Mechanical.kDistancePerPulse);
+            // mTurnEncoder.setPositionConversionFactor(Constants.Mechanical.kTurningEncoderRot2Rad);
+            // mTurnEncoder.setVelocityConversionFactor(Constants.Mechanical.kTurningEncoderRPM2RadPerSec);
             
             // Absolute Encoder
             absoluteEncoder = new AnalogInput(pAbsoluteEncoderPort);
@@ -75,7 +85,7 @@ public class SwerveModule {
             // Reset all position
             // driveEncoder.setPosition(0);
             mDriveEncoder.reset();
-            mTurnEncoder.setPosition(getAbsoluteEncoderRad()); // set to current angle (absolute encoders never loses reading)
+            mTurnEncoder.reset(); // set to current angle (absolute encoders never loses reading)
             
             currentState = new SwerveModuleState(0, new Rotation2d(getAbsoluteEncoderRad()));
     }
@@ -132,16 +142,27 @@ public class SwerveModule {
         currentState = SwerveModuleState.optimize(pNewState, getState().angle); 
         // Set power
         mDriveMotor.set(drivingPID.calculate(mDriveEncoder.getDistance(), currentState.speedMetersPerSecond / Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond));
-        mTurnMotor.set(turningPID.calculate(mTurnEncoder.getPosition(), currentState.angle.getRadians()));
+        mTurnMotor.set(turningPID.calculate(mTurnEncoder.getDistance(), currentState.angle.getRadians()));
 
         // Telemetry
         SmartDashboard.putString("Swerve[" + absoluteEncoder.getChannel() + "] state", currentState.toString());
-        
+
     }
 
-    // Stop moving
+    //ok we need this to reset the encoders you do realize it has a built in chat function wjhattttttttttttt reallu? yeah click on the bar below you should find it
+    public void resetEncoders() {
+        mDriveEncoder.reset();
+        mTurnEncoder.reset(); //does the turn encoder need to be reset? it will lose angle position; thats what the other team has... if we have the kraken motor for turning, we need to change it. Should we do that now or when if its harder to change it later then we should do it now ok what morot did the other team have? can or talon? i can give you a link to their files if you want to look at it ok
+    }
+
+    // https://github.com/4201VitruvianBots/2023SwerveSim/blob/adc5d029f32def359702915bc607c4a7733bbedb/2023SwerveControllerCommand/src/main/java/frc/robot/subsystems/SwerveModule.java#L157
+    // Stop moving wjat are uoutalking about  ?? idk theu have a spark motor but 2 Encoder s as in ecoder class
+    // they made three different examples for different motors https://github.com/4201VitruvianBots/2023SwerveSim/tree/adc5d029f32def359702915bc607c4a7733bbedb that might help...? falcon has talonfx yeah i should have been looking at that huh it not so different so it doesnt matter ok i might have to give up calculus :oh( no!! we;ll see why?? because calculus is a junior/senior class. i have more chance of getting any other ap classes than calculus oh that sucks yeah :( but anyways why ios there a )?? the example code created a freaking hashmap for the modules cry-emoji hey i didnt make it they are more advanced than us yeah but its complicated so i have no intention of replicateing that part so what to do ??everything els ok e
     public void stop() {
         mDriveMotor.set(0);
         mTurnMotor.set(0);
     }
-}
+}// should i take form the one i was using or the falcon one 
+// idk what are you diong? keep on doing what i was doing in the swerve subsystem what are you doing there? what are you trying to implememtnt well i was seeing what they have that we dont and implementing it over here. 
+//well obviously make sure to check what those things are for, then we casee if we really need it rodger rodger but that didnt answer my question good point uhhh where you were looking before the swerve controller command yeah that one ok thumbsup
+// you want to do subsystem or module first? or what =ever you were doing before

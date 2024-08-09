@@ -51,7 +51,7 @@ public class SwerveJoystick extends Command {
         turningSpeed = turningLimiter.calculate(turningSpeed) * Constants.Mechanical.kTeleDriveMaxAngularSpeedRadiansPerSecond;
 
         // Drive
-        mSwerveSubsystem.setModuleStates(xSpeed, ySpeed, turningSpeed);
+        mSwerveSubsystem.drive(xSpeed, ySpeed, turningSpeed);
         
     }
 
