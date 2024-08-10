@@ -95,9 +95,9 @@ public class SwerveModule {
             absoluteEncoderOffset = pAbsoluteEncoderOffset;
             
             //PID Controller - what is this
-            turningPID = new PIDController(0.5, 0, 0);
+            turningPID = new PIDController(1, 0, 0);
             turningPID.enableContinuousInput(-Math.PI, Math.PI); // minimize rotations to 180
-            drivingPID = new PIDController(0.5, 0, 0);
+            drivingPID = new PIDController(1, 0, 0);
             
             // Reset all position
             // driveEncoder.setPosition(0);
@@ -140,7 +140,7 @@ public class SwerveModule {
         // Optimize angle (turn no more than 90 degrees)
         currentState = SwerveModuleState.optimize(pNewState, getState().angle); 
         // Set power
-        driveOutput = drivingPID.calculate(mDriveEncoder.getDistance(), currentState.speedMetersPerSecond);
+        driveOutput = drivingPID.calculate(mDriveEncoder.getRate(), currentState.speedMetersPerSecond);
         turnOutput = turningPID.calculate(mTurnEncoder.getDistance(), currentState.angle.getRadians());
         mDriveMotor.set(driveOutput);
         mTurnMotor.set(turnOutput);

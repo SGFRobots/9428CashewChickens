@@ -167,7 +167,7 @@ public class SwerveSubsystem extends SubsystemBase{
         }
         // Sets robot position on the field
         mField2d.setRobotPose(getPose());
-        // mField2d.getObject(Constants.ModuleNameSim).setPoses(mModulePose);
+        mField2d.getObject(Constants.ModuleNameSim).setPoses(mModulePose);
         
         // Logs in Swerve Tab
         double loggingState[] = {
