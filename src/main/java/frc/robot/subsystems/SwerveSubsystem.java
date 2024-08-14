@@ -203,12 +203,13 @@ public class SwerveSubsystem extends SubsystemBase{
     }
 
      // DRIVE the robot // what ikd its in the other codee and we dont have it  
-    public void drive(double xSpeed, double ySpeed, double turningSpeed) { // this is also in their other code these are two seperate thigns. their drive is our setmodulestates. their setmodulestates isnt used really ya it syas its used in their robot container really yea line 106
+    public void drive(double xSpeed, double ySpeed, double turningSpeed, boolean fieldRelative) { // this is also in their other code these are two seperate thigns. their drive is our setmodulestates. their setmodulestates isnt used really ya it syas its used in their robot container really yea line 106
         // Set desire chassis speeds
         // Field Orientation
         ChassisSpeeds chassisSpeed;
-        chassisSpeed = ChassisSpeeds.fromFieldRelativeSpeeds(
-            xSpeed, ySpeed, turningSpeed, mGyro.getRotation2d());
+        chassisSpeed = fieldRelative ? 
+            ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, turningSpeed, mGyro.getRotation2d()) :
+            new ChassisSpeeds(xSpeed, ySpeed, turningSpeed);
 
         // Convert chassis speeds to module states
         SwerveModuleState[] moduleStates = Constants.Mechanical.kDriveKinematics.toSwerveModuleStates(chassisSpeed);

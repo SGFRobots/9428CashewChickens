@@ -119,7 +119,7 @@ public final class Constants {
         
         public static final double kDeadzone = 0.05;
     
-        public static final double kPhysicalMaxSpeedMetersPerSecond = 10;
+        public static final double kPhysicalMaxSpeedMetersPerSecond = 50;
         public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = kPhysicalMaxSpeedMetersPerSecond / kRobotWidth / 2;
     
         public static final double kTeleDriveMaxSpeedMetersPerSecond = kPhysicalMaxSpeedMetersPerSecond / 4;

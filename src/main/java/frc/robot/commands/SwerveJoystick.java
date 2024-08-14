@@ -11,6 +11,7 @@ import frc.robot.subsystems.SwerveSubsystem;
 
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveJoystick extends Command {
     
@@ -51,9 +52,9 @@ public class SwerveJoystick extends Command {
         ySpeed = yLimiter.calculate(ySpeed) * Constants.Mechanical.kTeleDriveMaxSpeedMetersPerSecond;
         turningSpeed = turningLimiter.calculate(turningSpeed) * Constants.Mechanical.kTeleDriveMaxAngularSpeedRadiansPerSecond;
 
-
+        SmartDashboard.putNumberArray("Speeds", new Double[]{xSpeed, ySpeed, turningSpeed});
         // Drive
-        mSwerveSubsystem.drive(xSpeed, ySpeed, turningSpeed);
+        mSwerveSubsystem.drive(xSpeed, ySpeed, turningSpeed, false);
         
     }
 
