@@ -42,10 +42,10 @@ public final class Constants {
         public static final int[] kFRTurnEncoderPorts = {21,22};
         public static final int[] kBRTurnEncoderPorts = {23,24};
         
-        public static final int kFLDriveAbsoluteEncoderPort = 0;
-        public static final int kBLDriveAbsoluteEncoderPort = 2;
+        public static final int kFLDriveAbsoluteEncoderPort = 2;
+        public static final int kBLDriveAbsoluteEncoderPort = 3;
         public static final int kFRDriveAbsoluteEncoderPort = 1;
-        public static final int kBRDriveAbsoluteEncoderPort = 3;
+        public static final int kBRDriveAbsoluteEncoderPort = 4;
 
         public static final int kGyroPort = 2;
     }
