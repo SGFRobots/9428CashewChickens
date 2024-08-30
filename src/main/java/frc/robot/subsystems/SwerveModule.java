@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.EncoderSim;
@@ -8,8 +9,8 @@ import frc.robot.Constants;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.ctre.phoenix6.hardware.CANcoder;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -31,7 +32,7 @@ public class SwerveModule {
     public final PIDController drivingPID;
 
     // aBSOLUTE ENCODER - knows where the wheels are facing at all times
-    public final CANcoder absoluteEncoder;
+    public final AnalogInput absoluteEncoder;
     public final boolean AbsoluteEncoderReversed;
     public final double absoluteEncoderOffset;
 
@@ -60,6 +61,7 @@ public class SwerveModule {
             mTurnMotor = new CANSparkMax(pTurnPort, MotorType.kBrushless);
             mDriveMotor.setInverted(pDriveReversed);
             mTurnMotor.setInverted(pTurnReversed);
+
             
 
             // Encoders
@@ -88,7 +90,7 @@ public class SwerveModule {
             // mTurnEncoder.setVelocityConversionFactor(Constants.Mechanical.kTurningEncoderRPM2RadPerSec);
             
             // Absolute Encoder
-            absoluteEncoder = new CANcoder(pAbsoluteEncoderPort);
+            absoluteEncoder = new AnalogInput(pAbsoluteEncoderPort);
             AbsoluteEncoderReversed = pAbsoluteEncoderReversed;
             absoluteEncoderOffset = pAbsoluteEncoderOffset;
             
@@ -108,7 +110,7 @@ public class SwerveModule {
     // get current angle in radians
     public double getAbsoluteEncoderRad() {
         // Voltage applied over max voltage returns the percentage of a rotation
-        double angle = absoluteEncoder.getSupplyVoltage().getValue() / RobotController.getVoltage5V();
+        double angle = absoluteEncoder.getVoltage() / RobotController.getVoltage5V();
         // convert to radians
         angle *= 2.0 * Math.PI;
         
@@ -144,7 +146,7 @@ public class SwerveModule {
         mTurnMotor.set(turnOutput);
 
         // Telemetry
-        SmartDashboard.putString("Swerve[" + absoluteEncoder.getDeviceID() + "] state", currentState.toString());
+        SmartDashboard.putString("Swerve[" + absoluteEncoder.getChannel() + "] state", currentState.toString());
     }
 
     //ok we need this to reset the encoders you do realize it has a built in chat function wjhattttttttttttt reallu? yeah click on the bar below you should find it
