@@ -1,10 +1,11 @@
 package frc.robot.subsystems;
 
-// import com.kauailabs.navx.frc.AHRS;
+import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.simulation.ADXRS450_GyroSim;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -17,6 +18,16 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.hal.SimDevice;
+import edu.wpi.first.wpilibj.simulation.SimDeviceSim;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.wpilibj.interfaces.Gyro;
+import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj2.command.PIDCommand;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj2.command.PIDSubsystem;
 
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -88,8 +99,11 @@ public class SwerveSubsystem extends SubsystemBase{
     // Positions stored in gyro and mOdometer
     // private final AHRS mGyro;
     // private final AnalogGyro mGyro;
-    private final ADXRS450_Gyro mGyro = new ADXRS450_Gyro();
-    private final ADXRS450_GyroSim mGyroSim = new ADXRS450_GyroSim(mGyro); // this? ? ya its only used in this file yes bc its the gyro yeah i knpow hey what do you call the part of the class before the constructor where you declare all variables? is this a test or do you not know i do not know me neither ok make up a name uhhh Decelorations no a related name yeah thats where you declare your variabbles oh you mean declarations yeah ok
+    // private final ADXRS450_Gyro mGyro = new ADXRS450_Gyro();
+    // private final ADXRS450_GyroSim mGyroSim = new ADXRS450_GyroSim(mGyro); 
+    // private final AHRS mGyro = new AHRS(SPI.Port.kMXP);
+    // private final SimDevice mGyroSim = new SimDevice(0);
+    // private final SimDeviceSim mGyroSim = new SimDeviceSim(0)
     private final SwerveDriveOdometry mOdometer;
     
     private double yaw;
@@ -108,8 +122,7 @@ public class SwerveSubsystem extends SubsystemBase{
         // mGyro = new AHRS(SPI.Port.kMXP);
         // mGyro = new AnalogGyro(1);
 
-        mOdometer = new SwerveDriveOdometry(Constants.Mechanical.kDriveKinematics,
-        mGyro.getRotation2d(), 
+        mOdometer = new SwerveDriveOdometry(Constants.Mechanical.kDriveKinematics, new Rotation2d(), 
         new SwerveModulePosition[] {
             modules[0].getPosition(),
             modules[1].getPosition(),
@@ -120,40 +133,43 @@ public class SwerveSubsystem extends SubsystemBase{
         yaw = 0;
 
         // Reset gyro
-        new Thread(() -> {
-            try {
-                Thread.sleep(1000);
-                // Reset position
-                // mGyro.reset();
-                zeroHeading();
-            } catch (Exception e) {
-            }
-        }).start();
+        // new Thread(() -> {
+        //     try {
+        //         Thread.sleep(1000);
+        //         // Reset position
+        //         // mGyro.reset();
+        //         // zeroHeading();
+        //     } catch (Exception e) {
+        //     }
+        // }).start();
     }
 
-    public void zeroHeading() {
-        mGyro.reset();
-    }
+    // public void zeroHeading() {
+    //     mGyro.reset();
+    // }
 
-    // Get angle robot is facing
-    public double getHeading() {
-        return mGyro.getRotation2d().getDegrees();
-    } // what gyro they have?
+    // Get angle robot is facing in degrees
+    // public double getHeading() {
+    //     return mGyro.getAngle();
+    // } // what gyro they have?
 
     // Get direction robot is facing
-    public Rotation2d getRotation2d() {
-        return Rotation2d.fromDegrees(getHeading());
-    }
+    // public Rotation2d getRotation2d() {
+    //     return Rotation2d.fromDegrees(getHeading());
+    // }
 
     // Get position of robot
     public Pose2d getPose() {
         return mOdometer.getPoseMeters();
     }
+    // public Rotation2d getGyroRotation2d() {
+    //     return new Rotation2d(mGyro.getAngle() * (Math.PI / 180));
+    // }
 
     @Override
     public void periodic() {
         // update position
-        mOdometer.update(mGyro.getRotation2d(), new SwerveModulePosition[] {
+        mOdometer.update(new Rotation2d(), new SwerveModulePosition[] {
             modules[0].getPosition(),
             modules[1].getPosition(),
             modules[2].getPosition(),
@@ -161,7 +177,7 @@ public class SwerveSubsystem extends SubsystemBase{
 
         // Update Pose for swerve modules - Position of the rotation and the translation matters
         for (int i = 0; i < modules.length; i++){
-            Translation2d updatedModulePosition = kModulePositions[i].rotateBy(mGyro.getRotation2d()).plus(getPose().getTranslation());
+            Translation2d updatedModulePosition = kModulePositions[i].rotateBy(new Rotation2d()).plus(getPose().getTranslation());
             // Module heading is the angle relative to the chasis heading
             mModulePose[i] = new Pose2d(updatedModulePosition, modules[i].getState().angle.plus(getPose().getRotation()));
         }
@@ -178,21 +194,21 @@ public class SwerveSubsystem extends SubsystemBase{
         };
 
         // Debug telemetry
-        SmartDashboard.putNumber("Robot Heading", mGyro.getAngle());
-        SmartDashboard.putString("Gyro", mGyro.getRotation2d().toString());
+        // SmartDashboard.putNumber("Robot Heading", mGyro.getAngle());
+        // SmartDashboard.putString("Gyro", getGyroRotation2d().toString());
         SmartDashboard.putString("Robot Location", getPose().getTranslation().toString());
         SmartDashboard.putNumberArray("SwerveModuleLOGGINGStates", loggingState);
 
     }
     public void resetOdometry(Pose2d pose) {
-        mOdometer.resetPosition(mGyro.getRotation2d(),new SwerveModulePosition[]{
+        mOdometer.resetPosition(new Rotation2d(),new SwerveModulePosition[]{
             modules[0].getPosition(),
             modules[1].getPosition(),
             modules[2].getPosition(),
             modules[3].getPosition()}, pose);
         for (SwerveModule module : modules) {
             module.resetEncoders();
-        }; // it does just say reset encoders by itself so idk ...
+        };
     }
 
     // Stop the robot
@@ -208,7 +224,7 @@ public class SwerveSubsystem extends SubsystemBase{
         // Field Orientation
         ChassisSpeeds chassisSpeed;
         chassisSpeed = fieldRelative ? 
-            ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, turningSpeed, mGyro.getRotation2d()) :
+            ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, turningSpeed, new Rotation2d()) :
             new ChassisSpeeds(xSpeed, ySpeed, turningSpeed);
 
         // Convert chassis speeds to module states
@@ -243,7 +259,7 @@ public class SwerveSubsystem extends SubsystemBase{
         };
         ChassisSpeeds chassisSpeed = Constants.Mechanical.kDriveKinematics.toChassisSpeeds(moduleStates);
         yaw += chassisSpeed.omegaRadiansPerSecond * 0.02;
-        mGyroSim.setAngle(-Units.radiansToDegrees(yaw));
+        // mGyroSim.setAngle(-Units.radiansToDegrees(yaw));
     }
     
     //their get heading is different than ours ... why ... our getheading is definitely wrong. i thought that this morning too ok that makes sense ill rewrite it okkk

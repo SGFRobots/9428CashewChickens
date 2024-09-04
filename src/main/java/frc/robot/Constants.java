@@ -22,15 +22,15 @@ public final class Constants {
     public static final String ModuleNameSim = "Swerve Modules";
     
     public static final class MotorPorts {
-        public static final int kFLDriveMotorPort = 8;
-        public static final int kBLDriveMotorPort = 2;
-        public static final int kFRDriveMotorPort = 6;
-        public static final int kBRDriveMotorPort = 4;
-    
-        public static final int kFLTurningMotorPort = 7;
-        public static final int kBLTurningMotorPort = 1;
-        public static final int kFRTurningMotorPort = 5;
-        public static final int kBRTurningMotorPort = 3;
+        public static final int kFLDriveMotorPort = 10;
+        public static final int kBLDriveMotorPort = 11;
+        public static final int kFRDriveMotorPort = 9;
+        public static final int kBRDriveMotorPort = 12;
+
+        public static final int kFLTurningMotorPort = 2;
+        public static final int kBLTurningMotorPort = 3;
+        public static final int kFRTurningMotorPort = 1;
+        public static final int kBRTurningMotorPort = 4;
 
         public static final int[] kFLDriveEncoderPorts = {9, 10};
         public static final int[] kBLDriveEncoderPorts = {11, 12};
@@ -42,10 +42,10 @@ public final class Constants {
         public static final int[] kFRTurnEncoderPorts = {21,22};
         public static final int[] kBRTurnEncoderPorts = {23,24};
         
-        public static final int kFLDriveAbsoluteEncoderPort = 0;
-        public static final int kBLDriveAbsoluteEncoderPort = 2;
-        public static final int kFRDriveAbsoluteEncoderPort = 1;
-        public static final int kBRDriveAbsoluteEncoderPort = 3;
+        public static final int kFLDriveAbsoluteEncoderPort = 6;
+        public static final int kBLDriveAbsoluteEncoderPort = 7;
+        public static final int kFRDriveAbsoluteEncoderPort = 5;
+        public static final int kBRDriveAbsoluteEncoderPort = 8;
 
         public static final int kGyroPort = 2;
     }
@@ -98,10 +98,10 @@ public final class Constants {
         // Distance between front and back wheels (in meters)
         public static final double kRobotLength = 0.64;
 
-        public static final double kFLDriveAbsoluteEncoderOffsetRad = -0.254;
-        public static final double kBLDriveAbsoluteEncoderOffsetRad = -1.252;
-        public static final double kFRDriveAbsoluteEncoderOffsetRad = -1.816;
-        public static final double kBRDriveAbsoluteEncoderOffsetRad = -4.811;
+        public static final double kFLDriveAbsoluteEncoderOffsetRad = 0;
+        public static final double kBLDriveAbsoluteEncoderOffsetRad = 0;
+        public static final double kFRDriveAbsoluteEncoderOffsetRad = 0;
+        public static final double kBRDriveAbsoluteEncoderOffsetRad = 0;
         // Module Positions on Robot
         public static final Translation2d[] kModulePositions = {
             new Translation2d(kRobotLength / 2, kRobotWidth / 2),
@@ -119,13 +119,13 @@ public final class Constants {
         
         public static final double kDeadzone = 0.05;
     
-        public static final double kPhysicalMaxSpeedMetersPerSecond = 50;
-        public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = kPhysicalMaxSpeedMetersPerSecond / kRobotWidth / 2;
+        public static final double kPhysicalMaxSpeedMetersPerSecond = 5.0292;
+        public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = 28.46;
     
         public static final double kTeleDriveMaxSpeedMetersPerSecond = kPhysicalMaxSpeedMetersPerSecond / 4;
         public static final double kTeleDriveMaxAngularSpeedRadiansPerSecond = kPhysicalMaxAngularSpeedRadiansPerSecond / 4;
-        public static final double kTeleDriveMaxAccelerationUnitsPerSecond = 3;
-        public static final double kTeleDriveMaxAngularAccelerationUnitsPerSecond = 3;
+        public static final double kTeleDriveMaxAccelerationUnitsPerSecond = 10;
+        public static final double kTeleDriveMaxAngularAccelerationUnitsPerSecond = 10;
     
         public static final double kDriveEncoderResolution = 2048;
         public static final double kTurningEncoderResolution = 42;

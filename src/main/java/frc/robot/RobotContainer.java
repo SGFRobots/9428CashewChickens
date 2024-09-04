@@ -41,7 +41,7 @@ public class RobotContainer {
 
   // Assign buttons to commands
   private void configureButtonBindings() {
-    new JoystickButton(mController, Constants.Controllers.ButtonYPort).whileTrue(new InstantCommand(() -> mSwerveSubsystem.zeroHeading()));
+    // new JoystickButton(mController, Constants.Controllers.ButtonYPort).whileTrue(new InstantCommand(() -> mSwerveSubsystem.zeroHeading()));
   }
 
 
