@@ -22,15 +22,15 @@ public final class Constants {
     public static final String ModuleNameSim = "Swerve Modules";
     
     public static final class MotorPorts {
-        public static final int kFLDriveMotorPort = 10;
-        public static final int kBLDriveMotorPort = 11;
-        public static final int kFRDriveMotorPort = 9;
-        public static final int kBRDriveMotorPort = 12;
+        public static final int kFLDriveMotorPort = 2;
+        public static final int kBLDriveMotorPort = 3;
+        public static final int kFRDriveMotorPort = 1;
+        public static final int kBRDriveMotorPort = 4;
 
-        public static final int kFLTurningMotorPort = 2;
-        public static final int kBLTurningMotorPort = 3;
-        public static final int kFRTurningMotorPort = 1;
-        public static final int kBRTurningMotorPort = 4;
+        public static final int kFLTurningMotorPort = 10;
+        public static final int kBLTurningMotorPort = 11;
+        public static final int kFRTurningMotorPort = 9;
+        public static final int kBRTurningMotorPort = 12;
 
         public static final int[] kFLDriveEncoderPorts = {9, 10};
         public static final int[] kBLDriveEncoderPorts = {11, 12};
@@ -98,10 +98,10 @@ public final class Constants {
         // Distance between front and back wheels (in meters)
         public static final double kRobotLength = 0.64;
 
-        public static final double kFLDriveAbsoluteEncoderOffsetRad = 0;
-        public static final double kBLDriveAbsoluteEncoderOffsetRad = 0;
-        public static final double kFRDriveAbsoluteEncoderOffsetRad = 0;
-        public static final double kBRDriveAbsoluteEncoderOffsetRad = 0;
+        public static final double kFLDriveAbsoluteEncoderOffsetRad = -0.211 + Math.PI;
+        public static final double kBLDriveAbsoluteEncoderOffsetRad = -0.342;
+        public static final double kFRDriveAbsoluteEncoderOffsetRad = -0.03;
+        public static final double kBRDriveAbsoluteEncoderOffsetRad = -0.297 + Math.PI;
         // Module Positions on Robot
         public static final Translation2d[] kModulePositions = {
             new Translation2d(kRobotLength / 2, kRobotWidth / 2),
@@ -120,7 +120,7 @@ public final class Constants {
         public static final double kDeadzone = 0.05;
     
         public static final double kPhysicalMaxSpeedMetersPerSecond = 5.0292;
-        public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = 28.46;
+        public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = 2.846;
     
         public static final double kTeleDriveMaxSpeedMetersPerSecond = kPhysicalMaxSpeedMetersPerSecond / 4;
         public static final double kTeleDriveMaxAngularSpeedRadiansPerSecond = kPhysicalMaxAngularSpeedRadiansPerSecond / 4;

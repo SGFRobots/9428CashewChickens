@@ -105,7 +105,7 @@ public class SwerveModule {
             mDriveEncoder.reset();
             mTurnEncoder.reset(); // set to current angle (absolute encoders never loses reading)
             
-            currentState = new SwerveModuleState(0, new Rotation2d(getAbsoluteEncoderRad()));
+            currentState = new SwerveModuleState(Constants.Mechanical.kPhysicalMaxAngularSpeedRadiansPerSecond, new Rotation2d(getAbsoluteEncoderRad()));
     }
 
     // get current angle in radians
@@ -137,27 +137,46 @@ public class SwerveModule {
             stop();
             return;
         }
+        SmartDashboard.putNumber("module " + mDriveMotor.getDeviceID(), pNewState.angle.getRadians());
         // Optimize angle (turn no more than 90 degrees)
         currentState = SwerveModuleState.optimize(pNewState, getState().angle); 
+        SmartDashboard.putNumber("module " + mDriveMotor.getDeviceID() + " optimized", currentState.angle.getRadians());
         // Set power
         driveOutput = drivingPID.calculate(mDriveEncoder.getRate(), currentState.speedMetersPerSecond);
         turnOutput = turningPID.calculate(mTurnEncoder.getDistance(), currentState.angle.getRadians());
-        mDriveMotor.set(driveOutput / 100);
-        mTurnMotor.set(turnOutput /100);
+        SmartDashboard.putNumber("module " + mDriveMotor.getDeviceID() + " pid", turnOutput);
+        mDriveMotor.set(driveOutput / 50);
+        mTurnMotor.set(turnOutput / 50);
 
         // Telemetry
-        SmartDashboard.putString("Swerve[" + absoluteEncoder.getDeviceID() + "] state", currentState.toString());
+        // SmartDashboard.putNumber("angle", currentState.angle.getRadians());
+        // SmartDashboard.putString("Swerve[" + absoluteEncoder.getDeviceID() + "] state", currentState.toString());
     }
 
-    //ok we need this to reset the encoders you do realize it has a built in chat function wjhattttttttttttt reallu? yeah click on the bar below you should find it
+    // Test one module at a time
+    public void driveIndividually(double speed, double rotation) {
+        mDriveMotor.set(speed / 25);
+        mTurnMotor.set(rotation / 25);
+    }
+
+    public void periodic() {
+        // SmartDashboard.putNumber("mv: drive motor" + mDriveMotor.getDeviceID(), mDriveMotor.getMotorVoltage().getValue());
+        // SmartDashboard.putNumber("sv: drive motor" + mDriveMotor.getDeviceID(), mDriveMotor.getSupplyVoltage().getValue());
+        // SmartDashboard.putNumber("mv: turn motor" + mTurnMotor.getDeviceId(), turnOutput);
+        // SmartDashboard.putNumber("absolute encoder" + absoluteEncoder.getDeviceID(), absoluteEncoder.getAbsolutePosition().getValue());
+        // SmartDashboard.putNumber("drive motor" + mDriveMotor.getDeviceID(), mDriveMotor.getPosition().getValue());
+    }
+
     public void resetEncoders() {
-        mDriveEncoder.reset();
-        mTurnEncoder.reset(); //does the turn encoder need to be reset? it will lose angle position; thats what the other team has... if we have the kraken motor for turning, we need to change it. Should we do that now or when if its harder to change it later then we should do it now ok what morot did the other team have? can or talon? i can give you a link to their files if you want to look at it ok
+        // mDriveEncoder.reset();
+        // mTurnEncoder.reset(); //does the turn encoder need to be reset? it will lose angle position; thats what the other team has... if we have the kraken motor for turning, we need to change it. Should we do that now or when if its harder to change it later then we should do it now ok what morot did the other team have? can or talon? i can give you a link to their files if you want to look at it ok
+        // absoluteEncoder.setPosition(absoluteEncoderOffset);
+        // mTurnMotor.set
+        // while(absoluteEncoder.getAbsolutePosition().getValue() != absoluteEncoderOffset) {
+            // mTurnMotor.
+        // }
     }
 
-    // https://github.com/4201VitruvianBots/2023SwerveSim/blob/adc5d029f32def359702915bc607c4a7733bbedb/2023SwerveControllerCommand/src/main/java/frc/robot/subsystems/SwerveModule.java#L157
-    // Stop moving wjat are uoutalking about  ?? idk theu have a spark motor but 2 Encoder s as in ecoder class
-    // they made three different examples for different motors https://github.com/4201VitruvianBots/2023SwerveSim/tree/adc5d029f32def359702915bc607c4a7733bbedb that might help...? falcon has talonfx yeah i should have been looking at that huh it not so different so it doesnt matter ok i might have to give up calculus :oh( no!! we;ll see why?? because calculus is a junior/senior class. i have more chance of getting any other ap classes than calculus oh that sucks yeah :( but anyways why ios there a )?? the example code created a freaking hashmap for the modules cry-emoji hey i didnt make it they are more advanced than us yeah but its complicated so i have no intention of replicateing that part so what to do ??everything els ok e
     public void stop() {
         mDriveMotor.set(0);
         mTurnMotor.set(0);
