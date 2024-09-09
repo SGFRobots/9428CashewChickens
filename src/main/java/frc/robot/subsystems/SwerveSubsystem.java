@@ -4,9 +4,6 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.I2C.Port;
-import edu.wpi.first.wpilibj.simulation.ADXRS450_GyroSim;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -14,35 +11,21 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-// import edu.wpi.first.wpilibj.AnalogGyro;
-import edu.wpi.first.wpilibj.ADXRS450_Gyro;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.hal.SimDevice;
-import edu.wpi.first.wpilibj.simulation.SimDeviceSim;
-import edu.wpi.first.util.sendable.Sendable;
-import edu.wpi.first.wpilibj.interfaces.Gyro;
-import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.I2C;
-import edu.wpi.first.wpilibj.SerialPort;
-import edu.wpi.first.wpilibj2.command.PIDCommand;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj2.command.PIDSubsystem;
-
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import static frc.robot.Constants.Mechanical.kModulePositions;
+
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class SwerveSubsystem extends SubsystemBase {
     // Make instances of all 4 modules
     private final SwerveModule[] modules = {
             // Front Left
             new SwerveModule(
-                    Constants.MotorPorts.kFLDriveMotorPort,
-                    Constants.MotorPorts.kFLTurningMotorPort,
+                    Constants.MotorPorts.kFLDriveMotorID,
+                    Constants.MotorPorts.kFLTurningMotorID,
                     Constants.Reversed.kFLDriveReversed,
                     Constants.Reversed.kFLTurningReversed,
-                    Constants.MotorPorts.kFLDriveAbsoluteEncoderPort,
+                    Constants.MotorPorts.kFLDriveAbsoluteEncoderID,
                     Constants.Mechanical.kFLDriveAbsoluteEncoderOffsetRad,
                     Constants.Reversed.kFLDriveAbsoluteEncoderReversed,
                     Constants.MotorPorts.kFLDriveEncoderPorts,
@@ -52,11 +35,11 @@ public class SwerveSubsystem extends SubsystemBase {
 
             // Front Right
             new SwerveModule(
-                    Constants.MotorPorts.kFRDriveMotorPort,
-                    Constants.MotorPorts.kFRTurningMotorPort,
+                    Constants.MotorPorts.kFRDriveMotorID,
+                    Constants.MotorPorts.kFRTurningMotorID,
                     Constants.Reversed.kFRDriveReversed,
                     Constants.Reversed.kFRTurningReversed,
-                    Constants.MotorPorts.kFRDriveAbsoluteEncoderPort,
+                    Constants.MotorPorts.kFRDriveAbsoluteEncoderID,
                     Constants.Mechanical.kFRDriveAbsoluteEncoderOffsetRad,
                     Constants.Reversed.kFRDriveAbsoluteEncoderReversed,
                     Constants.MotorPorts.kFRDriveEncoderPorts,
@@ -66,11 +49,11 @@ public class SwerveSubsystem extends SubsystemBase {
 
             // Back Left
             new SwerveModule(
-                    Constants.MotorPorts.kBLDriveMotorPort,
-                    Constants.MotorPorts.kBLTurningMotorPort,
+                    Constants.MotorPorts.kBLDriveMotorID,
+                    Constants.MotorPorts.kBLTurningMotorID,
                     Constants.Reversed.kBLDriveReversed,
                     Constants.Reversed.kBLTurningReversed,
-                    Constants.MotorPorts.kBLDriveAbsoluteEncoderPort,
+                    Constants.MotorPorts.kBLDriveAbsoluteEncoderID,
                     Constants.Mechanical.kBLDriveAbsoluteEncoderOffsetRad,
                     Constants.Reversed.kBLDriveAbsoluteEncoderReversed,
                     Constants.MotorPorts.kBLDriveEncoderPorts,
@@ -79,11 +62,11 @@ public class SwerveSubsystem extends SubsystemBase {
                     Constants.Reversed.kBLTurningEncoderReversed),
             // Back Right
             new SwerveModule(
-                    Constants.MotorPorts.kBRDriveMotorPort,
-                    Constants.MotorPorts.kBRTurningMotorPort,
+                    Constants.MotorPorts.kBRDriveMotorID,
+                    Constants.MotorPorts.kBRTurningMotorID,
                     Constants.Reversed.kBRDriveReversed,
                     Constants.Reversed.kBRTurningReversed,
-                    Constants.MotorPorts.kBRDriveAbsoluteEncoderPort,
+                    Constants.MotorPorts.kBRDriveAbsoluteEncoderID,
                     Constants.Mechanical.kBRDriveAbsoluteEncoderOffsetRad,
                     Constants.Reversed.kBRDriveAbsoluteEncoderReversed,
                     Constants.MotorPorts.kBRDriveEncoderPorts,
@@ -94,19 +77,15 @@ public class SwerveSubsystem extends SubsystemBase {
     };
 
     // Positions stored in gyro and mOdometer
-    // private final AHRS mGyro;
-    // private final AnalogGyro mGyro;
-    // private final ADXRS450_Gyro mGyro = new ADXRS450_Gyro();
     // private final ADXRS450_GyroSim mGyroSim = new ADXRS450_GyroSim(mGyro);
     // private final AHRS mGyro = new AHRS(SPI.Port.kMXP);
-    // private final SimDevice mGyroSim = new SimDevice(0);
-    // private final SimDeviceSim mGyroSim = new SimDeviceSim(0)
     private final SwerveDriveOdometry mOdometer;
 
     private double yaw;
 
+    // Simulated field
     public static final Field2d mField2d = new Field2d();
-
+    // Simulated modules
     Pose2d[] mModulePose = {
             new Pose2d(),
             new Pose2d(),
@@ -114,12 +93,11 @@ public class SwerveSubsystem extends SubsystemBase {
             new Pose2d()
     };
 
-    // =)
+    // Constructor
     public SwerveSubsystem() {
         // Set up gyro and mOdometer
         // mGyro = new AHRS(SPI.Port.kMXP);
         // mGyro = new AnalogGyro(1);
-
         mOdometer = new SwerveDriveOdometry(Constants.Mechanical.kDriveKinematics, new Rotation2d(),
                 new SwerveModulePosition[] {
                         modules[0].getPosition(),
@@ -127,64 +105,54 @@ public class SwerveSubsystem extends SubsystemBase {
                         modules[2].getPosition(),
                         modules[3].getPosition()
                 });
+
+        // Simulated field
         SmartDashboard.putData("Field", mField2d);
-        yaw = 0;
+        // yaw = 0;
 
         // Reset gyro
-        // new Thread(() -> {
-        // try {
-        // Thread.sleep(1000);
-        // // Reset position
-        // // mGyro.reset();
-        // // zeroHeading();
-        // } catch (Exception e) {
-        // }
-        // }).start();
+        // mGyro.reset();
     }
-
-    // public void zeroHeading() {
-    // mGyro.reset();
-    // }
 
     // Get angle robot is facing in degrees
     // public double getHeading() {
     // return mGyro.getAngle();
-    // } // what gyro they have?
+    // }
 
     // Get direction robot is facing
     // public Rotation2d getRotation2d() {
     // return Rotation2d.fromDegrees(getHeading());
     // }
 
-    // Get position of robot
+    // Get position of robot based on odometer
     public Pose2d getPose() {
         return mOdometer.getPoseMeters();
     }
+
     // public Rotation2d getGyroRotation2d() {
     // return new Rotation2d(mGyro.getAngle() * (Math.PI / 180));
     // }
 
     @Override
     public void periodic() {
-        // update position
+        // Update modules' positions
         mOdometer.update(new Rotation2d(), new SwerveModulePosition[] {
                 modules[0].getPosition(),
                 modules[1].getPosition(),
                 modules[2].getPosition(),
                 modules[3].getPosition() });
 
-        // Update Pose for swerve modules - Position of the rotation and the translation
-        // matters
+        // Update Pose for swerve modules - Position of the rotation and the translation matters
         for (int i = 0; i < modules.length; i++) {
-            Translation2d updatedModulePosition = kModulePositions[i].rotateBy(new Rotation2d())
-                    .plus(getPose().getTranslation());
+            // No gyro - new Rotation2d() instead
+            Translation2d updatedModulePosition = kModulePositions[i].rotateBy(new Rotation2d()).plus(getPose().getTranslation());
             // Module heading is the angle relative to the chasis heading
-            mModulePose[i] = new Pose2d(updatedModulePosition,
-                    modules[i].getState().angle.plus(getPose().getRotation()));
-                
-                modules[i].periodic();
+            mModulePose[i] = new Pose2d(updatedModulePosition, modules[i].getState().angle.plus(getPose().getRotation()));
+
+            modules[i].periodic();
         }
-        // Sets robot position on the field
+
+        // Sets robot and modules positions on the field
         mField2d.setRobotPose(getPose());
         mField2d.getObject(Constants.ModuleNameSim).setPoses(mModulePose);
 
@@ -204,55 +172,40 @@ public class SwerveSubsystem extends SubsystemBase {
 
     }
 
+    // Reset odometer
     public void resetOdometry(Pose2d pose) {
         mOdometer.resetPosition(new Rotation2d(), new SwerveModulePosition[] {
                 modules[0].getPosition(),
                 modules[1].getPosition(),
                 modules[2].getPosition(),
                 modules[3].getPosition() }, pose);
-        for (SwerveModule module : modules) {
-            module.resetEncoders();
-        }
-        ;
     }
 
-    // Stop the robot
+    // Stop the robot completely
     public void stopModules() {
         for (int i = 0; i < modules.length; i++) {
             modules[i].stop();
         }
     }
 
-    // DRIVE the robot // what ikd its in the other codee and we dont have it
-    public void drive(double xSpeed, double ySpeed, double turningSpeed, boolean fieldRelative) { // this is also in
-                                                                                                  // their other code
-                                                                                                  // these are two
-                                                                                                  // seperate thigns.
-                                                                                                  // their drive is our
-                                                                                                  // setmodulestates.
-                                                                                                  // their
-                                                                                                  // setmodulestates
-                                                                                                  // isnt used really ya
-                                                                                                  // it syas its used in
-                                                                                                  // their robot
-                                                                                                  // container really
-                                                                                                  // yea line 106
-        // Set desire chassis speeds
-        // Field Orientation
+    // DRIVE the robot
+    public void drive(double xSpeed, double ySpeed, double turningSpeed, boolean fieldRelative) {
+        // Set desire chassis speeds based on field or robot relative
         ChassisSpeeds chassisSpeed;
-        chassisSpeed = fieldRelative
-                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, turningSpeed, new Rotation2d(Math.PI))
+        chassisSpeed = fieldRelative ?
+                ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, turningSpeed, new Rotation2d(Math.PI))
                 : new ChassisSpeeds(xSpeed, ySpeed, turningSpeed);
-
         SmartDashboard.putNumber("chassisSpeed", chassisSpeed.omegaRadiansPerSecond);
 
-        // Convert chassis speeds to module states
+        // Convert chassis speeds to each module states
         SwerveModuleState[] moduleStates = Constants.Mechanical.kDriveKinematics.toSwerveModuleStates(chassisSpeed);
-        // SmartDashboard.putNumber("omega radians/second", chassisSpeed.omegaRadiansPerSecond);
-        // Set speed to max if go over max speed
+        SmartDashboard.putNumber("omega radians/second", chassisSpeed.omegaRadiansPerSecond);
+
+        // Cap max speed
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates,
                 Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond);
-        // Move modulesss
+
+        // Move each module
         for (int i = 0; i < modules.length; i++) {
             modules[i].setDesiredState(moduleStates[i]);
         }
@@ -261,17 +214,26 @@ public class SwerveSubsystem extends SubsystemBase {
     // Test one module at a time
     public void driveIndividualModule(double speed, double rotation) {
         modules[3].driveIndividually(speed, rotation);
-        // MODULE 1 DOES NOT ROTATE (TURN)
     }
 
-    // bro what you doiongmy bad shake head i deleted something in accident
-    // whats next bud? im gonna add something on accident
+    // Reset modules rotations to 0
     public void resetEncoders() {
         for (SwerveModule module : modules) {
-            module.resetEncoders();
+            module.resetting = true;
         }
     }
+    
+    // Check if all modules are done resetting angles
+    public boolean checkEncoderResetted() {
+        for (SwerveModule module : modules) {
+            if (module.resetting) {
+                return false;
+            }
+        }
+        return true;
+    }
 
+    // Simulate robot's heading - No Gyro, no heading
     @Override
     public void simulationPeriodic() {
         for (SwerveModule module : modules) {
@@ -284,16 +246,10 @@ public class SwerveSubsystem extends SubsystemBase {
                 modules[2].getState(),
                 modules[3].getState()
         };
-        ChassisSpeeds chassisSpeed = Constants.Mechanical.kDriveKinematics.toChassisSpeeds(moduleStates);
-        yaw += chassisSpeed.omegaRadiansPerSecond * 0.02;
+
+        // Robot heading and gyro - No gyro
+        // ChassisSpeeds chassisSpeed = Constants.Mechanical.kDriveKinematics.toChassisSpeeds(moduleStates);
+        // yaw += chassisSpeed.omegaRadiansPerSecond * 0.02;
         // mGyroSim.setAngle(-Units.radiansToDegrees(yaw));
     }
-
-    // their get heading is different than ours ... why ... our getheading is
-    // definitely wrong. i thought that this morning too ok that makes sense ill
-    // rewrite it okkk
-    // public returnvalue functionname(parameters) {
-    // actions semicolon
-    // } // it is the format when defining a methodi know
-} /// woah what does this one do wow thats cool
-  // 04/19/2009
+}

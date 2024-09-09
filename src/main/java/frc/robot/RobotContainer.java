@@ -11,20 +11,21 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.Auto;
+
 // Subsystems and commands
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.commands.SwerveJoystick;
+import frc.robot.commands.ResetRotations;
 
 
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  
-
   // Instances of controllers
   public final XboxController mController;
 
-  // Swerve subsystem
+  // Subsystems and commands
   private final SwerveSubsystem mSwerveSubsystem;
+  private final ResetRotations mResetRotations;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -34,6 +35,7 @@ public class RobotContainer {
     mSwerveSubsystem = new SwerveSubsystem();
     mSwerveSubsystem.setDefaultCommand(new SwerveJoystick(mSwerveSubsystem, mController));
 
+    mResetRotations = new ResetRotations(mSwerveSubsystem);
 
     // Bind buttons and commands
     configureButtonBindings();
@@ -41,7 +43,7 @@ public class RobotContainer {
 
   // Assign buttons to commands
   private void configureButtonBindings() {
-    // new JoystickButton(mController, Constants.Controllers.ButtonYPort).whileTrue(new InstantCommand(() -> mSwerveSubsystem.zeroHeading()));
+    new JoystickButton(mController, Constants.Controllers.ButtonAPort).onTrue(mResetRotations);
   }
 
 
