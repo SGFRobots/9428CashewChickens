@@ -21,7 +21,9 @@ public class ResetRotations extends Command {
     public void execute() {}
 
     @Override
-    public void end(boolean isFinished) {}
+    public void end(boolean isFinished) {
+        mSubsystem.stopReset();
+    }
 
     @Override
     public boolean isFinished() {

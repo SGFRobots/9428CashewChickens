@@ -192,14 +192,14 @@ public class SwerveSubsystem extends SubsystemBase {
     public void drive(double xSpeed, double ySpeed, double turningSpeed, boolean fieldRelative) {
         // Set desire chassis speeds based on field or robot relative
         ChassisSpeeds chassisSpeed;
-        chassisSpeed = fieldRelative ?
-                ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, turningSpeed, new Rotation2d(Math.PI))
-                : new ChassisSpeeds(xSpeed, ySpeed, turningSpeed);
-        SmartDashboard.putNumber("chassisSpeed", chassisSpeed.omegaRadiansPerSecond);
+        chassisSpeed = new ChassisSpeeds(xSpeed, ySpeed, turningSpeed);
+        SmartDashboard.putNumber("omegaradians", chassisSpeed.omegaRadiansPerSecond);
+        SmartDashboard.putNumber("xSpeed", chassisSpeed.vxMetersPerSecond);
+        SmartDashboard.putNumber("ySpeed", chassisSpeed.vyMetersPerSecond);
 
         // Convert chassis speeds to each module states
         SwerveModuleState[] moduleStates = Constants.Mechanical.kDriveKinematics.toSwerveModuleStates(chassisSpeed);
-        SmartDashboard.putNumber("omega radians/second", chassisSpeed.omegaRadiansPerSecond);
+        // SmartDashboard.putNumber("omega radians/second", chassisSpeed.omegaRadiansPerSecond);
 
         // Cap max speed
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates,
@@ -223,6 +223,13 @@ public class SwerveSubsystem extends SubsystemBase {
         }
     }
     
+    // Reset modules rotations to 0
+    public void stopReset() {
+        for (SwerveModule module : modules) {
+            module.resetting = false;
+        }
+    }
+
     // Check if all modules are done resetting angles
     public boolean checkEncoderResetted() {
         for (SwerveModule module : modules) {

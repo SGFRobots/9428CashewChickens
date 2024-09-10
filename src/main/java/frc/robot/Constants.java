@@ -67,7 +67,7 @@ public final class Constants {
         // Driving motors
         public static final boolean kFLDriveReversed = false;
         public static final boolean kBLDriveReversed = false;
-        public static final boolean kFRDriveReversed = false;
+        public static final boolean kFRDriveReversed = true;
         public static final boolean kBRDriveReversed = false;
 
         // Turning encoders
@@ -143,7 +143,7 @@ public final class Constants {
         public static final double kDeadzone = 0.05;
     
         // Speeds and Accelerations
-        public static final double kPhysicalMaxSpeedMetersPerSecond = 5.0292;
+        public static final double kPhysicalMaxSpeedMetersPerSecond = 0.50292;
         public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = 2.846;
         public static final double kTeleDriveMaxSpeedMetersPerSecond = kPhysicalMaxSpeedMetersPerSecond / 4;
         public static final double kTeleDriveMaxAngularSpeedRadiansPerSecond = kPhysicalMaxAngularSpeedRadiansPerSecond / 4;

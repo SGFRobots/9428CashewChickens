@@ -35,7 +35,7 @@ public class SwerveJoystick extends Command {
         double xSpeed = -mController.getRawAxis(Constants.Controllers.LeftYPort);
         double ySpeed = -mController.getRawAxis(Constants.Controllers.LeftXPort);
         double turningSpeed = mController.getRawAxis(Constants.Controllers.RightXPort); 
-        SmartDashboard.putNumber("joystick", turningSpeed);
+        // SmartDashboard.putNumber("joystick", turningSpeed);
         
         // Apply Deadzone
         xSpeed = Math.abs(xSpeed) > Constants.Mechanical.kDeadzone ? xSpeed : 0.0;
@@ -46,13 +46,13 @@ public class SwerveJoystick extends Command {
         xSpeed = xLimiter.calculate(xSpeed);
         ySpeed = yLimiter.calculate(ySpeed);
         turningSpeed = turningLimiter.calculate(turningSpeed);
-        SmartDashboard.putNumber("limiter", turningSpeed);
+        // SmartDashboard.putNumber("limiter", turningSpeed);
 
         // Calculate speed in m/s
         xSpeed *= Constants.Mechanical.kTeleDriveMaxSpeedMetersPerSecond;
         ySpeed *= Constants.Mechanical.kTeleDriveMaxSpeedMetersPerSecond;
         turningSpeed *= Constants.Mechanical.kTeleDriveMaxAngularSpeedRadiansPerSecond;
-        SmartDashboard.putNumber("constants applied", turningSpeed);
+        // SmartDashboard.putNumber("constants applied", turningSpeed);
 
         // Drive
         mSwerveSubsystem.drive(xSpeed, ySpeed, turningSpeed, false);

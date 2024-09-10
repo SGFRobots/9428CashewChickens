@@ -7,8 +7,9 @@ import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import frc.robot.Constants;
 
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.ControlModeValue;
 import com.revrobotics.CANSparkMax;
-// import com.revrobotics.RelativeEncoder;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.ctre.phoenix6.hardware.CANcoder;
 
@@ -24,8 +25,9 @@ public class SwerveModule {
     // motors and encoders
     public final TalonFX mDriveMotor;
     public final CANSparkMax mTurnMotor;
-    public final Encoder mDriveEncoder;
-    public final Encoder mTurnEncoder;
+    // public final Encoder mDriveEncoder;
+    // public final Encoder mTurnEncoder;
+    // public final RelativeEncoder mTurnEncoder;
 
     // PID controllers - feedback method
     public final PIDController turningPID;
@@ -48,8 +50,8 @@ public class SwerveModule {
     private double turnDistance;
 
     // Simulated hardwares
-    public final EncoderSim mDriveEncoderSim;
-    public final EncoderSim mTurnEncoderSim;
+    // public final EncoderSim mDriveEncoderSim;
+    // public final EncoderSim mTurnEncoderSim;
     public final FlywheelSim mDriveMotorSim;
     public final FlywheelSim mTurnMotorSim;
 
@@ -66,14 +68,14 @@ public class SwerveModule {
             mTurnMotor.setInverted(pTurnReversed);
 
             // Encoders
-            mDriveEncoder = new Encoder(pDriveEncoderPorts[0], pDriveEncoderPorts[1]);
-            mTurnEncoder = new Encoder(pTurnEncoderPorts[0], pTurnEncoderPorts[1]);
-            mDriveEncoder.setReverseDirection(pDEncoderReversed);
-            mTurnEncoder.setReverseDirection(pTEncoderReversed);
+            // mDriveEncoder = new Encoder(pDriveEncoderPorts[0], pDriveEncoderPorts[1]);
+            // mTurnEncoder = new Encoder(pTurnEncoderPorts[0], pTurnEncoderPorts[1]);
+            // mDriveEncoder.setReverseDirection(pDEncoderReversed);
+            // mTurnEncoder.setReverseDirection(pTEncoderReversed);
 
             // Simulated Hardwarwes
-            mDriveEncoderSim = new EncoderSim(mDriveEncoder);
-            mTurnEncoderSim = new EncoderSim(mTurnEncoder);
+            // mDriveEncoderSim = new EncoderSim(mDriveEncoder);
+            // mTurnEncoderSim = new EncoderSim(mTurnEncoder);
             mDriveMotorSim = new FlywheelSim(
                 LinearSystemId.identifyVelocitySystem(Constants.Mechanical.kVoltSecondPerRadian, Constants.Mechanical.kVoltSecondsSquaredPerRadian),
                 Constants.Mechanical.kDriveGearBox, Constants.Mechanical.kDriveMotorGearRatio);
@@ -83,8 +85,8 @@ public class SwerveModule {
             turnDistance = 0;
 
             // Convert to meters and radians instead of rotations
-            mDriveEncoder.setDistancePerPulse(Constants.Mechanical.kDistancePerPulse);
-            mTurnEncoder.setDistancePerPulse(Constants.Mechanical.kDistancePerPulse);
+            // mDriveEncoder.setDistancePerPulse(Constants.Mechanical.kDistancePerPulse);
+            // mTurnEncoder.setDistancePerPulse(Constants.Mechanical.kDistancePerPulse);
             // mDriveMotor.setPositionConversionFactor(Constants.Mechanical.kDriveEncoderRot2Meter);
             // driveEncoder.setVelocityConversionFactor(Constants.Mechanical.kDriveEncoderRPM2MeterPerSec);
             // mTurnEncoder.setPositionConversionFactor(Constants.Mechanical.kTurningEncoderRot2Rad);
@@ -105,8 +107,8 @@ public class SwerveModule {
             
             // Reset all position
             // driveEncoder.setPosition(0);
-            mDriveEncoder.reset();
-            mTurnEncoder.reset(); // set to current angle (absolute encoders never loses reading)
+            // mDriveEncoder.reset();
+            // mTurnEncoder.reset(); // set to current angle (absolute encoders never loses reading)
             
             currentState = new SwerveModuleState(Constants.Mechanical.kPhysicalMaxAngularSpeedRadiansPerSecond, new Rotation2d(getAbsoluteEncoderRad()));
     }
@@ -144,19 +146,24 @@ public class SwerveModule {
             }
 
             // Optimize angle (turn no more than 90 degrees)
-            SmartDashboard.putNumber("module " + mDriveMotor.getDeviceID(), pNewState.angle.getRadians());
+            // SmartDashboard.putNumber("module " + mDriveMotor.getDeviceID(), pNewState.angle.getRadians());
             currentState = SwerveModuleState.optimize(pNewState, getState().angle); 
             // Rotation2d optimizedAngle = new Rotation2d(optimize(pNewState.angle.getDegrees()));
             // currentState = new SwerveModuleState(pNewState.speedMetersPerSecond, optimizedAngle);
-            SmartDashboard.putNumber("module " + mDriveMotor.getDeviceID() + " optimized", currentState.angle.getRadians());
+            // SmartDashboard.putNumber("module " + mDriveMotor.getDeviceID() + " optimized", currentState.angle.getRadians());
 
             // Set power to motors
-            driveOutput = drivingPID.calculate(mDriveEncoder.getRate(), currentState.speedMetersPerSecond);
-            turnOutput = turningPID.calculate(mTurnEncoder.getDistance(), currentState.angle.getRadians());
-            SmartDashboard.putNumber("module " + mDriveMotor.getDeviceID() + " pid", turnOutput);
-            mDriveMotor.set(driveOutput / 50);
+            // driveOutput = drivingPID.calculate(mDriveEncoder.getRate(), currentState.speedMetersPerSecond);
+            // turnOutput = turningPID.calculate(mTurnEncoder.getDistance(), currentState.angle.getRadians());
+            System.out.println(roundToMeters(mDriveMotor.getVelocity().getValueAsDouble()));
+            // driveOutput = drivingPID.calculate(roundToMeters(mDriveMotor.getVelocity().getValueAsDouble()), currentState.speedMetersPerSecond);
+            driveOutput = currentState.speedMetersPerSecond / 25;
+            turnOutput = turningPID.calculate(absoluteEncoder.getAbsolutePosition().getValueAsDouble(), currentState.angle.getDegrees());
+            SmartDashboard.putNumber("drive " + mDriveMotor.getDeviceID() + " pid", driveOutput);
+            SmartDashboard.putNumber("turn " + mDriveMotor.getDeviceID() + " pid", turnOutput);
+            mDriveMotor.set(driveOutput);
             mTurnMotor.set(turnOutput / 50);
-    
+
             // Telemetry
             SmartDashboard.putNumber("angle", currentState.angle.getRadians());
             SmartDashboard.putString("Swerve[" + absoluteEncoder.getDeviceID() + "] state", currentState.toString());
@@ -164,6 +171,10 @@ public class SwerveModule {
             // Reset wheel rotations
             resetRotation();
         }
+    }
+    
+    public double roundToMeters(double rps) {
+        return Constants.Mechanical.kWheelCircumferenceMeters * rps;
     }
 
     // Angle optimization - Need work
@@ -178,8 +189,8 @@ public class SwerveModule {
 
     // Test one module at a time
     public void driveIndividually(double speed, double rotation) {
-        mDriveMotor.set(speed / 25);
-        mTurnMotor.set(rotation / 25);
+        mDriveMotor.set(speed);
+        mTurnMotor.set(rotation);
     }
 
     // Telemetry
@@ -198,7 +209,7 @@ public class SwerveModule {
             resetting = false;
             return;
         }
-        mTurnMotor.set(turnOutput);
+        mTurnMotor.set(turnOutput / 50);
         mDriveMotor.set(0);
     }
 
@@ -217,13 +228,13 @@ public class SwerveModule {
         mTurnMotorSim.update(dt);
 
         // Simulate drive encoder
-        driveDistance += mDriveMotorSim.getAngularVelocityRadPerSec() * dt;
-        mDriveEncoderSim.setDistance(driveDistance);
-        mDriveEncoderSim.setRate(mDriveMotorSim.getAngularVelocityRadPerSec());
+        // driveDistance += mDriveMotorSim.getAngularVelocityRadPerSec() * dt;
+        // mDriveEncoderSim.setDistance(driveDistance);
+        // mDriveEncoderSim.setRate(mDriveMotorSim.getAngularVelocityRadPerSec());
 
-        // Simulate turn encoder
-        turnDistance += mTurnMotorSim.getAngularVelocityRadPerSec() * dt;
-        mTurnEncoderSim.setDistance(turnDistance);
-        mTurnEncoderSim.setRate(mTurnMotorSim.getAngularVelocityRadPerSec());
+        // // Simulate turn encoder
+        // turnDistance += mTurnMotorSim.getAngularVelocityRadPerSec() * dt;
+        // mTurnEncoderSim.setDistance(turnDistance);
+        // mTurnEncoderSim.setRate(mTurnMotorSim.getAngularVelocityRadPerSec());
     }
 }
