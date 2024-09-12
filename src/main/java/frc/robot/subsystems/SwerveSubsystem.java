@@ -1,26 +1,32 @@
 package frc.robot.subsystems;
 
-import com.kauailabs.navx.frc.AHRS;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import frc.robot.Constants;
 import static frc.robot.Constants.Mechanical.kModulePositions;
 
+import java.io.File;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import swervelib.SwerveDrive;
+import swervelib.SwerveModule;
+import swervelib.parser.SwerveParser;
+
 
 public class SwerveSubsystem extends SubsystemBase {
     // Make instances of all 4 modules
-    private final SwerveModule[] modules = {
+    private final Module[] modules = {
             // Front Left
-            new SwerveModule(
+            new Module(
                     Constants.MotorPorts.kFLDriveMotorID,
                     Constants.MotorPorts.kFLTurningMotorID,
                     Constants.Reversed.kFLDriveReversed,
@@ -34,7 +40,7 @@ public class SwerveSubsystem extends SubsystemBase {
                     Constants.Reversed.kFLTurningEncoderReversed),
 
             // Front Right
-            new SwerveModule(
+            new Module(
                     Constants.MotorPorts.kFRDriveMotorID,
                     Constants.MotorPorts.kFRTurningMotorID,
                     Constants.Reversed.kFRDriveReversed,
@@ -48,7 +54,7 @@ public class SwerveSubsystem extends SubsystemBase {
                     Constants.Reversed.kFRTurningEncoderReversed),
 
             // Back Left
-            new SwerveModule(
+            new Module(
                     Constants.MotorPorts.kBLDriveMotorID,
                     Constants.MotorPorts.kBLTurningMotorID,
                     Constants.Reversed.kBLDriveReversed,
@@ -61,7 +67,7 @@ public class SwerveSubsystem extends SubsystemBase {
                     Constants.Reversed.kBLDriveEncoderReversed,
                     Constants.Reversed.kBLTurningEncoderReversed),
             // Back Right
-            new SwerveModule(
+            new Module(
                     Constants.MotorPorts.kBRDriveMotorID,
                     Constants.MotorPorts.kBRTurningMotorID,
                     Constants.Reversed.kBRDriveReversed,
@@ -75,7 +81,7 @@ public class SwerveSubsystem extends SubsystemBase {
                     Constants.Reversed.kBRTurningEncoderReversed),
 
     };
-
+   
     // Positions stored in gyro and mOdometer
     // private final ADXRS450_GyroSim mGyroSim = new ADXRS450_GyroSim(mGyro);
     // private final AHRS mGyro = new AHRS(SPI.Port.kMXP);
@@ -98,6 +104,7 @@ public class SwerveSubsystem extends SubsystemBase {
         // Set up gyro and mOdometer
         // mGyro = new AHRS(SPI.Port.kMXP);
         // mGyro = new AnalogGyro(1);
+
         mOdometer = new SwerveDriveOdometry(Constants.Mechanical.kDriveKinematics, new Rotation2d(),
                 new SwerveModulePosition[] {
                         modules[0].getPosition(),
@@ -218,21 +225,21 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Reset modules rotations to 0
     public void resetEncoders() {
-        for (SwerveModule module : modules) {
+        for (Module module : modules) {
             module.resetting = true;
         }
     }
     
     // Reset modules rotations to 0
     public void stopReset() {
-        for (SwerveModule module : modules) {
+        for (Module module : modules) {
             module.resetting = false;
         }
     }
 
     // Check if all modules are done resetting angles
     public boolean checkEncoderResetted() {
-        for (SwerveModule module : modules) {
+        for (Module module : modules) {
             if (module.resetting) {
                 return false;
             }
@@ -243,7 +250,7 @@ public class SwerveSubsystem extends SubsystemBase {
     // Simulate robot's heading - No Gyro, no heading
     @Override
     public void simulationPeriodic() {
-        for (SwerveModule module : modules) {
+        for (Module module : modules) {
             module.simulationPeriodic(0.02);
         }
 

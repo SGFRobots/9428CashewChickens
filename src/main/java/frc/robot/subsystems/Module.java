@@ -20,7 +20,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class SwerveModule {
+public class Module {
 
     // motors and encoders
     public final TalonFX mDriveMotor;
@@ -56,7 +56,7 @@ public class SwerveModule {
     public final FlywheelSim mTurnMotorSim;
 
     // Constructores
-    public SwerveModule(
+    public Module(
         int pDrivePort, int pTurnPort, boolean pDriveReversed, boolean pTurnReversed,
         int pAbsoluteEncoderPort, double pAbsoluteEncoderOffset, boolean pAbsoluteEncoderReversed,
         int[] pDriveEncoderPorts, int[] pTurnEncoderPorts, boolean pDEncoderReversed, boolean pTEncoderReversed) {
