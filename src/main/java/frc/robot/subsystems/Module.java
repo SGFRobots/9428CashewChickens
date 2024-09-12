@@ -98,9 +98,9 @@ public class Module {
             absoluteEncoderOffset = pAbsoluteEncoderOffset;
             
             //PID Controller - change PID values when get feedback
-            turningPID = new PIDController(1, 0, 0);
+            turningPID = new PIDController(0.002, 0, 0);
             turningPID.enableContinuousInput(-Math.PI, Math.PI); // minimize rotations to 180
-            drivingPID = new PIDController(1, 0, 0);
+            drivingPID = new PIDController(0.002, 0, 0);
             // P = rate of change
             // I = rate of change of D
             // D = rate of change of P (slow when get closer)

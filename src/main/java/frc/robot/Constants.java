@@ -119,10 +119,10 @@ public final class Constants {
         public static final double kRobotLength = 0.64;
 
         // CANCoders' offsets
-        public static final double kFLDriveAbsoluteEncoderOffsetRad = -0.211 + Math.PI;
+        public static final double kFLDriveAbsoluteEncoderOffsetRad = -0.211;
         public static final double kBLDriveAbsoluteEncoderOffsetRad = -0.342;
         public static final double kFRDriveAbsoluteEncoderOffsetRad = -0.03;
-        public static final double kBRDriveAbsoluteEncoderOffsetRad = -0.297 + Math.PI;
+        public static final double kBRDriveAbsoluteEncoderOffsetRad = -0.297;
 
         // Module Positions on Robot
         public static final Translation2d[] kModulePositions = {
