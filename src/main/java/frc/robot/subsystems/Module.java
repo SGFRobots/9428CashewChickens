@@ -96,11 +96,12 @@ public class Module {
             absoluteEncoder = new CANcoder(pAbsoluteEncoderPort);
             AbsoluteEncoderReversed = pAbsoluteEncoderReversed;
             absoluteEncoderOffset = pAbsoluteEncoderOffset;
+            absoluteEncoder.getConfigurator().setPosition(absoluteEncoderOffset);
             
             //PID Controller - change PID values when get feedback
-            turningPID = new PIDController(0.002, 0, 0);
+            turningPID = new PIDController(0.4, 0, 0.01);
             turningPID.enableContinuousInput(-Math.PI, Math.PI); // minimize rotations to 180
-            drivingPID = new PIDController(0.002, 0, 0);
+            drivingPID = new PIDController(0.4, 0, 0.01);
             // P = rate of change
             // I = rate of change of D
             // D = rate of change of P (slow when get closer)
@@ -155,13 +156,13 @@ public class Module {
             // Set power to motors
             // driveOutput = drivingPID.calculate(mDriveEncoder.getRate(), currentState.speedMetersPerSecond);
             // turnOutput = turningPID.calculate(mTurnEncoder.getDistance(), currentState.angle.getRadians());
-            System.out.println(roundToMeters(mDriveMotor.getVelocity().getValueAsDouble()));
-            // driveOutput = drivingPID.calculate(roundToMeters(mDriveMotor.getVelocity().getValueAsDouble()), currentState.speedMetersPerSecond);
-            driveOutput = currentState.speedMetersPerSecond / 25;
-            turnOutput = turningPID.calculate(absoluteEncoder.getAbsolutePosition().getValueAsDouble(), currentState.angle.getDegrees());
-            SmartDashboard.putNumber("drive " + mDriveMotor.getDeviceID() + " pid", driveOutput);
-            SmartDashboard.putNumber("turn " + mDriveMotor.getDeviceID() + " pid", turnOutput);
-            mDriveMotor.set(driveOutput);
+            // System.out.println(roundToMeters(mDriveMotor.getVelocity().getValueAsDouble()));
+            driveOutput = drivingPID.calculate(roundToMeters(mDriveMotor.getVelocity().getValueAsDouble()), currentState.speedMetersPerSecond);
+            // driveOutput = currentState.speedMetersPerSecond / 25;
+            turnOutput = turningPID.calculate(signAngle(absoluteEncoder.getAbsolutePosition().getValueAsDouble()), currentState.angle.getDegrees());
+            SmartDashboard.putNumber("drive " + mDriveMotor.getDeviceID() + " pid", pNewState.speedMetersPerSecond);
+            SmartDashboard.putNumber("turn " + mDriveMotor.getDeviceID() + " pid", pNewState.angle.getDegrees());
+            mDriveMotor.set(driveOutput / 50);
             mTurnMotor.set(turnOutput / 50);
 
             // Telemetry
@@ -171,6 +172,10 @@ public class Module {
             // Reset wheel rotations
             resetRotation();
         }
+    }
+
+    public double signAngle(double deg) {
+        return (deg <= 180) ? deg : (deg - 360);
     }
     
     public double roundToMeters(double rps) {
@@ -198,18 +203,19 @@ public class Module {
         // SmartDashboard.putNumber("mv: drive motor" + mDriveMotor.getDeviceID(), mDriveMotor.getMotorVoltage().getValue());
         // SmartDashboard.putNumber("sv: drive motor" + mDriveMotor.getDeviceID(), mDriveMotor.getSupplyVoltage().getValue());
         // SmartDashboard.putNumber("mv: turn motor" + mTurnMotor.getDeviceId(), turnOutput);
-        // SmartDashboard.putNumber("absolute encoder" + absoluteEncoder.getDeviceID(), absoluteEncoder.getAbsolutePosition().getValue());
+        SmartDashboard.putNumber("absolute encoder" + absoluteEncoder.getDeviceID(), absoluteEncoder.getAbsolutePosition().getValue());
         // SmartDashboard.putNumber("drive motor" + mDriveMotor.getDeviceID(), mDriveMotor.getPosition().getValue());
     }
 
     // Turn module back to 0 position
     public void resetRotation() {
+        System.out.println(mDriveMotor.getDeviceID());
         turnOutput = turningPID.calculate(absoluteEncoder.getAbsolutePosition().getValueAsDouble(), absoluteEncoderOffset);
         if (Math.abs(turnOutput) < Constants.Mechanical.kDeadzone) {
             resetting = false;
             return;
         }
-        mTurnMotor.set(turnOutput / 50);
+        mTurnMotor.set(turnOutput);
         mDriveMotor.set(0);
     }
 

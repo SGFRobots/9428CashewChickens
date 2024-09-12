@@ -17,9 +17,9 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import swervelib.SwerveDrive;
-import swervelib.SwerveModule;
-import swervelib.parser.SwerveParser;
+// import swervelib.SwerveDrive;
+// import swervelib.SwerveModule;
+// import swervelib.parser.SwerveParser;
 
 
 public class SwerveSubsystem extends SubsystemBase {
@@ -200,9 +200,9 @@ public class SwerveSubsystem extends SubsystemBase {
         // Set desire chassis speeds based on field or robot relative
         ChassisSpeeds chassisSpeed;
         chassisSpeed = new ChassisSpeeds(xSpeed, ySpeed, turningSpeed);
-        SmartDashboard.putNumber("omegaradians", chassisSpeed.omegaRadiansPerSecond);
-        SmartDashboard.putNumber("xSpeed", chassisSpeed.vxMetersPerSecond);
-        SmartDashboard.putNumber("ySpeed", chassisSpeed.vyMetersPerSecond);
+        // SmartDashboard.putNumber("omegaradians", chassisSpeed.omegaRadiansPerSecond);
+        // SmartDashboard.putNumber("xSpeed", chassisSpeed.vxMetersPerSecond);
+        // SmartDashboard.putNumber("ySpeed", chassisSpeed.vyMetersPerSecond);
 
         // Convert chassis speeds to each module states
         SwerveModuleState[] moduleStates = Constants.Mechanical.kDriveKinematics.toSwerveModuleStates(chassisSpeed);
@@ -244,6 +244,7 @@ public class SwerveSubsystem extends SubsystemBase {
                 return false;
             }
         }
+        System.out.println(true);
         return true;
     }
 
