@@ -67,7 +67,7 @@ public final class Constants {
         // Driving motors
         public static final boolean kFLDriveReversed = false;
         public static final boolean kBLDriveReversed = false;
-        public static final boolean kFRDriveReversed = true;
+        public static final boolean kFRDriveReversed = false;
         public static final boolean kBRDriveReversed = false;
 
         // Turning encoders
@@ -85,7 +85,7 @@ public final class Constants {
         // CANCoders
         public static final boolean kFLDriveAbsoluteEncoderReversed = false;
         public static final boolean kBLDriveAbsoluteEncoderReversed = false;
-        public static final boolean kFRDriveAbsoluteEncoderReversed = true;
+        public static final boolean kFRDriveAbsoluteEncoderReversed = false;
         public static final boolean kBRDriveAbsoluteEncoderReversed = false;
     }
 

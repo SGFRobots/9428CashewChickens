@@ -175,8 +175,8 @@ public class SwerveSubsystem extends SubsystemBase {
         // Debug telemetry
         // SmartDashboard.putNumber("Robot Heading", mGyro.getAngle());
         // SmartDashboard.putString("Gyro", getGyroRotation2d().toString());
-        SmartDashboard.putString("Robot Location", getPose().getTranslation().toString());
-        SmartDashboard.putNumberArray("SwerveModuleLOGGINGStates", loggingState);
+        // SmartDashboard.putString("Robot Location", getPose().getTranslation().toString());
+        // SmartDashboard.putNumberArray("SwerveModuleLOGGINGStates", loggingState);
 
     }
 

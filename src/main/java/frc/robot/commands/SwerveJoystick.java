@@ -53,9 +53,9 @@ public class SwerveJoystick extends Command {
         SmartDashboard.putNumber("ySpeed", ySpeed);
 
         // Calculate speed in m/s
-        xSpeed *= Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond;
-        ySpeed *= Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond;
-        turningSpeed *= Constants.Mechanical.kPhysicalMaxAngularSpeedRadiansPerSecond;
+        xSpeed *= Constants.Mechanical.kTeleDriveMaxSpeedMetersPerSecond;
+        ySpeed *= Constants.Mechanical.kTeleDriveMaxSpeedMetersPerSecond;
+        turningSpeed *= Constants.Mechanical.kTeleDriveMaxAngularSpeedRadiansPerSecond;
         // SmartDashboard.putNumber("constants applied", turningSpeed);
 
         // Drive
