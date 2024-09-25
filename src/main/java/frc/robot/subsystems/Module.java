@@ -6,6 +6,8 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import frc.robot.Constants;
+import frc.robot.Robot;
+import frc.robot.RobotContainer;
 import swervelib.SwerveDrive;
 
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -101,7 +103,7 @@ public class Module {
             
             //PID Controller - change PID values when get feedback
             turningPID = new PIDController(0.05, 0, 0);
-            turningPID.enableContinuousInput(-Math.PI, Math.PI); // minimize rotations to 180
+            turningPID.enableContinuousInput(-180, 180); // minimize rotations to 180
             drivingPID = new PIDController(1, 0, 0);
             // P = rate of change
             // I = rate of change of D
@@ -142,14 +144,6 @@ public class Module {
         // If normal
         if (!resetting) {
             // Don't move back to 0 after moving
-            // SmartDashboard.putNumber("difference" + mDriveMotor.getDeviceID(), Math.abs(absoluteEncoder.getAbsolutePosition().getValueAsDouble() - pNewState.angle.getRadians()));
-            // if ((optimizeDeg360(absoluteEncoder.getAbsolutePosition().getValueAsDouble() * 360) >= (optimizeDeg180(pNewState.angle.getDegrees() + 1))) || (optimizeDeg360(absoluteEncoder.getAbsolutePosition().getValueAsDouble() * 360) <= (optimizeDeg180(pNewState.angle.getDegrees() - 1)))) {
-            //     System.out.println("stop" + mDriveMotor.getDeviceID());
-            //     stop();
-            //     return;
-            //     // if encoder => newstate +1 or encoder =< newstate - 1 
-                
-            // }
             if (pNewState.speedMetersPerSecond < 0.001) {
                 // System.out.println("stop" + mDriveMotor.getDeviceID());
                 stop();
@@ -158,7 +152,6 @@ public class Module {
 
             SmartDashboard.putNumber("speed" + mDriveMotor.getDeviceID(), pNewState.speedMetersPerSecond);
             // Optimize angle (turn no more than 90 degrees)
-            // SmartDashboard.putNumber("module " + mDriveMotor.getDeviceID(), pNewState.angle.getRadians());
             // currentState = SwerveModuleState.optimize(pNewState, getState().angle); 
             // SmartDashboard.putNumber("module " + mDriveMotor.getDeviceID() + " before", absoluteEncoder.getAbsolutePosition().getValueAsDouble() * 360);
             // SmartDashboard.putNumber("module " + mDriveMotor.getDeviceID() + " optimized", optimizeDeg360(absoluteEncoder.getAbsolutePosition().getValueAsDouble() * 360));
@@ -169,10 +162,7 @@ public class Module {
         
 
             // Set power to motorsr
-            // driveOutput = drivingPID.calculate(mDriveEncoder.getRate(), currentState.speedMetersPerSecond);
             // turnOutput = turningPID.calculate(mTurnEncoder.getDistance(), currentState.angle.getRadians());
-            // System.out.println(roundToMeters(mDriveMotor.getVelocity().getValueAsDouble()));
-            // driveOutput = drivingPID.calculate(roundToMeters(mDriveMotor.getVelocity().getValueAsDouble()), currentState.speedMetersPerSecond);
             SmartDashboard.putNumber("turn " + mDriveMotor.getDeviceID() + " newstate", currentState.angle.getDegrees());
             SmartDashboard.putNumber("turn " + mDriveMotor.getDeviceID() + " change", (absoluteEncoder.getAbsolutePosition().getValueAsDouble() * 360) - currentState.angle.getDegrees());
             driveOutput = currentState.speedMetersPerSecond / Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond;
@@ -181,8 +171,9 @@ public class Module {
             SmartDashboard.putNumber("turn " + mDriveMotor.getDeviceID() + " output", turnOutput);
             SmartDashboard.putNumber("drive " + mDriveMotor.getDeviceID() + " output", driveOutput);
             
-            mDriveMotor.set(pNewState.speedMetersPerSecond / Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond);
+            mDriveMotor.set(driveOutput);
             mTurnMotor.set(turnOutput);
+            // mTurnMotor.set(turnOutput / Constants.Mechanical.kPhysicalMaxAngularSpeedRadiansPerSecond);
             
             // Telemetry
             // SmartDashboard.putNumber("angle", currentState.angle.getRadians());
@@ -206,7 +197,7 @@ public class Module {
         if (angle > 180) {
             angle -= 180;
         }
-        return angle;
+        return angle - (absoluteEncoderOffset * 360);
     }
 
     public double getCurrentAngleRad() {
@@ -214,7 +205,7 @@ public class Module {
         if (angle > Math.PI) {
             angle -= Math.PI;
         }
-        return angle;
+        return angle - (absoluteEncoderOffset * Math.PI * 2);
     }
 
     // Angle optimization - Need work
