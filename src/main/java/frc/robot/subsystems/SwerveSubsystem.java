@@ -119,7 +119,7 @@ public class SwerveSubsystem extends SubsystemBase {
                 });
 
         // Simulated field
-        SmartDashboard.putData("Field", mField2d);
+        // SmartDashboard.putData("Field", mField2d);
         // yaw = 0;
 
         // Reset gyro
