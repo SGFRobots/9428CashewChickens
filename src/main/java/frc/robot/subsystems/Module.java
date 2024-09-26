@@ -17,6 +17,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.ctre.phoenix6.hardware.CANcoder;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -27,8 +28,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Module {
 
     // motors and encoders
-    public final TalonFX mDriveMotor;
-    public final CANSparkMax mTurnMotor;
+    private final TalonFX mDriveMotor;
+    private final CANSparkMax mTurnMotor;
     // public final Encoder mDriveEncoder;
     // public final Encoder mTurnEncoder;
     // public final RelativeEncoder mTurnEncoder;
@@ -69,6 +70,7 @@ public class Module {
             mDriveMotor = new TalonFX(pDrivePort);
             mTurnMotor = new CANSparkMax(pTurnPort, MotorType.kBrushless);
             mDriveMotor.setInverted(pDriveReversed);
+            System.out.println(mDriveMotor.getDeviceID() + " " + mDriveMotor.getInverted());
             mTurnMotor.setInverted(pTurnReversed);
 
             // Encoders
@@ -103,7 +105,7 @@ public class Module {
             
             //PID Controller - change PID values when get feedback
             turningPID = new PIDController(0.05, 0, 0);
-            turningPID.enableContinuousInput(-180, 180); // minimize rotations to 180
+            turningPID.enableContinuousInput(-Math.PI, Math.PI); // minimize rotations to 180
             drivingPID = new PIDController(1, 0, 0);
             // P = rate of change
             // I = rate of change of D
@@ -167,15 +169,14 @@ public class Module {
             // turnOutput = turningPID.calculate(mTurnEncoder.getDistance(), currentState.angle.getRadians());
             // SmartDashboard.putNumber("turn " + mDriveMotor.getDeviceID() + " newstate", currentState.angle.getDegrees());
             // SmartDashboard.putNumber("turn " + mDriveMotor.getDeviceID() + " change", (absoluteEncoder.getAbsolutePosition().getValueAsDouble() * 360) - currentState.angle.getDegrees());
-            driveOutput = currentState.speedMetersPerSecond / Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond;
-            turnOutput = turningPID.calculate(getCurrentAngleDeg(), currentState.angle.getDegrees());
+            driveOutput = (currentState.speedMetersPerSecond * Math.cos(turningPID.getPositionError())) / Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond;
+            turnOutput = turningPID.calculate(getCurrentAngleRad(), currentState.angle.getRadians());
             // turnOutput = (Math.abs((optimizeDeg360(absoluteEncoder.getAbsolutePosition().getValueAsDouble() * 360)) - currentState.angle.getDegrees()) < 3) ? 5 : 0;
             SmartDashboard.putNumber("turn " + mDriveMotor.getDeviceID() + " output", turnOutput);
             SmartDashboard.putNumber("drive " + mDriveMotor.getDeviceID() + " output", driveOutput);
             
-            // mDriveMotor.set(driveOutput);
-            SmartDashboard.putNumber("absolute encoder" + mDriveMotor.getDeviceID(), getCurrentAngleDeg());
-            // mTurnMotor.set(turnOutput);
+            mDriveMotor.set(driveOutput);
+            mTurnMotor.set(turnOutput); 
             // mTurnMotor.set(turnOutput / Constants.Mechanical.kPhysicalMaxAngularSpeedRadiansPerSecond);
             
             // Telemetry
@@ -196,21 +197,17 @@ public class Module {
     }
     
     public double getCurrentAngleDeg() {
-        double angle = absoluteEncoder.getAbsolutePosition().getValueAsDouble() * 360;
-        if (angle > 180) {
-            angle -= 180;
-        }
-        return angle - (absoluteEncoderOffset * 360);
+        return Math.toDegrees(getCurrentAngleRad());
     }
-
+    
     public double getCurrentAngleRad() {
         double angle = absoluteEncoder.getAbsolutePosition().getValueAsDouble() * Math.PI * 2;
         if (angle > Math.PI) {
             angle -= Math.PI;
         }
-        return angle - (absoluteEncoderOffset * Math.PI * 2);
+        return MathUtil.angleModulus(angle - (absoluteEncoderOffset * Math.PI * 2));
     }
-
+    
     // Angle optimization - Need work
     public double optimizeRad180(double angleRad) {
         if(Math.abs(angleRad) <= (Math.PI / 2)) {
@@ -225,15 +222,16 @@ public class Module {
         }
         return (Math.abs(angleDeg) - (180)) * ((angleDeg < 0) ? -1 : 1);
     }
-
+    
     public SwerveModuleState optimizeStateDeg(SwerveModuleState newState, double currentAngle) {
-        double change = currentAngle - newState.angle.getDegrees();
-        if ((change > 90) || (change < 270)) {
+        double change = Math.abs(currentAngle - newState.angle.getDegrees());
+        SmartDashboard.putNumber("change "+mDriveMotor.getDeviceID(), change);
+        if ((change > 90) && (change < 270)) {
             return new SwerveModuleState(-newState.speedMetersPerSecond, newState.angle.rotateBy(Rotation2d.fromDegrees(180)));
         }
         return newState;
     }
-
+    
     public SwerveModuleState optimizeStateRad(SwerveModuleState newState, double currentAngle) {
         double change = currentAngle - newState.angle.getRadians();
         if ((change > (Math.PI / 2)) || (change < (3 * Math.PI / 2))) {
@@ -241,7 +239,7 @@ public class Module {
         }
         return newState;
     }
-
+    
     public double optimizeRad360(double angleRad) {
         if(angleRad <= (Math.PI / 2)) {
             return angleRad;
@@ -250,7 +248,7 @@ public class Module {
         }
         return angleRad - (Math.PI * 2);
     }
-
+    
     public double optimizeDeg360(double angleDeg) {
         if(angleDeg <= (90)) {
             return angleDeg;
@@ -259,7 +257,7 @@ public class Module {
         }
         return angleDeg - (360);
     }
-
+    
     // Test one module at a time
     public void driveIndividually(double speed, double rotation) {
         mDriveMotor.set(speed);
@@ -272,6 +270,7 @@ public class Module {
         // SmartDashboard.putNumber("sv: drive motor" + mDriveMotor.getDeviceID(), mDriveMotor.getSupplyVoltage().getValue());
         // SmartDashboard.putNumber("mv: turn motor" + mTurnMotor.getDeviceId(), turnOutput);
         // SmartDashboard.putNumber("drive motor" + mDriveMotor.getDeviceID(), mDriveMotor.getPosition().getValue());
+        SmartDashboard.putNumber("absolute encoder" + mDriveMotor.getDeviceID(), absoluteEncoder.getAbsolutePosition().getValueAsDouble());
     }
 
     // Turn module back to 0 position
