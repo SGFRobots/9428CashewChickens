@@ -3,7 +3,6 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 
 import frc.robot.subsystems.SwerveSubsystem;
@@ -32,10 +31,9 @@ public class SwerveJoystick extends Command {
     @Override
     public void execute() {
         // Get joystick inputs
-        double xSpeed = -mController.getRawAxis(Constants.Controllers.LeftYPort);
-        double ySpeed = -mController.getRawAxis(Constants.Controllers.LeftXPort);
+        double xSpeed = mController.getRawAxis(Constants.Controllers.LeftYPort);
+        double ySpeed = mController.getRawAxis(Constants.Controllers.LeftXPort);
         double turningSpeed = mController.getRawAxis(Constants.Controllers.RightXPort); 
-        // SmartDashboard.putNumber("joystick", turningSpeed);
         
         // Apply Deadzone
         xSpeed = Math.abs(xSpeed) > Constants.Mechanical.kDeadzone ? xSpeed : 0.0;
@@ -46,17 +44,11 @@ public class SwerveJoystick extends Command {
         xSpeed = xLimiter.calculate(xSpeed);
         ySpeed = yLimiter.calculate(ySpeed);
         turningSpeed = turningLimiter.calculate(turningSpeed);
-        // SmartDashboard.putNumber("limiter", turningSpeed);
-
-        SmartDashboard.putNumber("omegaradians", turningSpeed);
-        SmartDashboard.putNumber("ySpeed", ySpeed);
-        SmartDashboard.putNumber("xSpeed", xSpeed);
 
         // Calculate speed in m/s
         xSpeed *= Constants.Mechanical.kTeleDriveMaxSpeedMetersPerSecond;
         ySpeed *= Constants.Mechanical.kTeleDriveMaxSpeedMetersPerSecond;
         turningSpeed *= Constants.Mechanical.kTeleDriveMaxAngularSpeedRadiansPerSecond;
-        // SmartDashboard.putNumber("constants applied", turningSpeed);
 
         // Drive
         mSwerveSubsystem.drive(xSpeed, ySpeed, turningSpeed, false);
