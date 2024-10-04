@@ -92,13 +92,15 @@ public class Module {
                 return;
             }
 
-            currentState = SwerveModuleState.optimize(pNewState, new Rotation2d(getCurrentAngleRad()));
-            // currentState = optimizeStateDeg(pNewState, getCurrentAngleDeg());        
+            SmartDashboard.putNumber("before" + mDriveMotor.getDeviceID(), pNewState.angle.getDegrees());
+            // currentState = SwerveModuleState.optimize(pNewState, new Rotation2d(getCurrentAngleRad())); // There is something wrong with this! What is wrong? Who knows!
+            currentState = optimizeStateDeg(pNewState, getCurrentAngleDeg());        
+            System.out.println(pNewState.angle.getDegrees());
             // currentState = pNewState;
 
             // Set power to motorsr
             driveOutput = (currentState.speedMetersPerSecond * Math.cos(turningPID.getPositionError())) / Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond;
-            turnOutput = turningPID.calculate(getCurrentAngleRad(), currentState.angle.getRadians());
+            turnOutput = turningPID.calculate(getCurrentAngleRad90(), currentState.angle.getRadians());
             
             mDriveMotor.set(driveOutput);
             mTurnMotor.set(turnOutput * Constants.Mechanical.kPhysicalMaxAngularSpeedRadiansPerSecond * 2); 
@@ -106,8 +108,8 @@ public class Module {
             // Telemetry
             SmartDashboard.putNumber("turn " + mDriveMotor.getDeviceID() + " output", turnOutput);
             SmartDashboard.putNumber("drive " + mDriveMotor.getDeviceID() + " output", driveOutput);
-            SmartDashboard.putNumber("angle", currentState.angle.getRadians());
             SmartDashboard.putString("Swerve[" + absoluteEncoder.getDeviceID() + "] state", currentState.toString());
+            
         } else {
             // Reset wheel rotations
             resetRotation();
@@ -119,16 +121,15 @@ public class Module {
     }
     
     public double getCurrentAngleRad() {
-        double angle = absoluteEncoder.getAbsolutePosition().getValueAsDouble() * Math.PI * 2;
-        if (angle > Math.PI) {
-            angle -= Math.PI;
-        }
+        double angle = -absoluteEncoder.getAbsolutePosition().getValueAsDouble() * Math.PI * 2;
         return MathUtil.angleModulus(angle - (absoluteEncoderOffset * Math.PI * 2));
     }
-    
+    public double getCurrentAngleRad90() {
+        double angle = absoluteEncoder.getAbsolutePosition().getValueAsDouble() * Math.PI * 2;
+        return MathUtil.inputModulus(angle-(absoluteEncoderOffset*Math.PI*2), -(Math.PI/2), Math.PI/2);
+    }
     public SwerveModuleState optimizeStateDeg(SwerveModuleState newState, double currentAngle) {
         double change = Math.abs(currentAngle - newState.angle.getDegrees());
-        SmartDashboard.putNumber("change "+mDriveMotor.getDeviceID(), change);
         if ((change > 90) && (change < 270)) {
             return new SwerveModuleState(-newState.speedMetersPerSecond, newState.angle.rotateBy(Rotation2d.fromDegrees(180)));
         }
@@ -155,7 +156,7 @@ public class Module {
         // SmartDashboard.putNumber("sv: drive motor" + mDriveMotor.getDeviceID(), mDriveMotor.getSupplyVoltage().getValue());
         // SmartDashboard.putNumber("mv: turn motor" + mTurnMotor.getDeviceId(), turnOutput);
         // SmartDashboard.putNumber("drive motor" + mDriveMotor.getDeviceID(), mDriveMotor.getPosition().getValue());
-        SmartDashboard.putNumber("absolute encoder" + mDriveMotor.getDeviceID(), absoluteEncoder.getAbsolutePosition().getValueAsDouble());
+        SmartDashboard.putNumber("absolute encoder" + mDriveMotor.getDeviceID(), getCurrentAngleDeg());
     }
 
     // Turn module back to 0 position

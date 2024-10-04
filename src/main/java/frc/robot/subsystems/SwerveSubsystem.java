@@ -12,18 +12,13 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.wpilibj.Filesystem;
 import swervelib.parser.SwerveParser;
 import swervelib.SwerveDrive;
-import swervelib.math.SwerveMath;
 import edu.wpi.first.math.util.Units;
 
 
@@ -88,13 +83,11 @@ public class SwerveSubsystem extends SubsystemBase {
 
     };
 
-    double maximumSpeed;
-    File swerveJsonDirectory;
-    SwerveDrive swerveDrive ;
+    // double maximumSpeed = Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond;
+    // File swerveJsonDirectory = new File(Filesystem.getDeployDirectory(),"swerve");
+    // SwerveDrive  swerveDrive = new SwerveParser(swerveJsonDirectory).createSwerveDrive(maximumSpeed);
 
    
-
-
     // Positions stored in mOdometer
     private final SwerveDriveOdometry mOdometer;
 
@@ -110,17 +103,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Constructor
     public SwerveSubsystem() {
-        maximumSpeed = Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond;
-        swerveJsonDirectory = new File(Filesystem.getDeployDirectory(),"swerve");
-        try {
-            swerveDrive = new SwerveParser(swerveJsonDirectory).createSwerveDrive(maximumSpeed);
-    
-        }
-        catch(IOException e){
-    
-        }
-
-        swerveDrive.setHeadingCorrection(false);
 
         mOdometer = new SwerveDriveOdometry(Constants.Mechanical.kDriveKinematics, new Rotation2d(),
                 new SwerveModulePosition[] {
@@ -134,52 +116,10 @@ public class SwerveSubsystem extends SubsystemBase {
         SmartDashboard.putData("Field", mField2d);
     }
 
-      public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier angularRotationX)
-    {
-        return run(() -> {
-        // Make the robot move
-        swerveDrive.drive(new Translation2d(translationX.getAsDouble() * swerveDrive.getMaximumVelocity(),
-                                            translationY.getAsDouble() * swerveDrive.getMaximumVelocity()),
-                            angularRotationX.getAsDouble() * swerveDrive.getMaximumAngularVelocity(),
-                            true,
-                            false);
-        });
-    }
-
-    public void drive(Translation2d translation, double rotation, boolean fieldRelative)
-    {
-        swerveDrive.drive(translation,
-                        rotation,
-                        fieldRelative,
-                        false); // Open loop is disabled since it shouldn't be used most of the time.
-    }
-
-    public void setChassisSpeeds(ChassisSpeeds chassisSpeeds)
-    {
-        swerveDrive.setChassisSpeeds(chassisSpeeds);
-    }
-
-    public ChassisSpeeds getTargetSpeeds(double xInput, double yInput, double headingX, double headingY)
-    {
-        Translation2d scaledInputs = SwerveMath.cubeTranslation(new Translation2d(xInput, yInput));
-        return swerveDrive.swerveController.getTargetSpeeds(scaledInputs.getX(),
-                                                            scaledInputs.getY(),
-                                                            headingX,
-                                                            headingY,
-                                                            getHeading().getRadians(),
-                                                            Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond);
-    }
-
     // Get position of robot based on odometer
     public Pose2d getPose() {
-        // return mOdometer.getPoseMeters();
-        return swerveDrive.getPose();
+        return mOdometer.getPoseMeters();
     }
-
-    public Rotation2d getHeading()
-  {
-    return getPose().getRotation();
-  }
 
     @Override
     public void periodic() {
