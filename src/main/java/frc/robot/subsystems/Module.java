@@ -93,8 +93,8 @@ public class Module {
             }
 
             SmartDashboard.putNumber("before" + mDriveMotor.getDeviceID(), pNewState.angle.getDegrees());
-            // currentState = SwerveModuleState.optimize(pNewState, new Rotation2d(getCurrentAngleRad())); // There is something wrong with this! What is wrong? Who knows!
-            currentState = optimizeStateDeg(pNewState, getCurrentAngleDeg());        
+            currentState = SwerveModuleState.optimize(pNewState, new Rotation2d(getCurrentAngleRad())); // There is something wrong with this! What is wrong? Who knows!
+            // currentState = optimizeStateDeg(pNewState, getCurrentAngleDeg());        
             System.out.println(pNewState.angle.getDegrees());
             // currentState = pNewState;
 
