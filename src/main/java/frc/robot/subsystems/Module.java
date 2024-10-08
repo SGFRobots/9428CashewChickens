@@ -96,14 +96,13 @@ public class Module {
             currentState = SwerveModuleState.optimize(pNewState, new Rotation2d(getCurrentAngleRad())); // There is something wrong with this! What is wrong? Who knows!
             // currentState = optimizeStateDeg(pNewState, getCurrentAngleDeg());        
             System.out.println(pNewState.angle.getDegrees());
-            // currentState = pNewState;
 
             // Set power to motorsr
             driveOutput = (currentState.speedMetersPerSecond * Math.cos(turningPID.getPositionError())) / Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond;
             turnOutput = turningPID.calculate(getCurrentAngleRad90(), currentState.angle.getRadians());
             
             mDriveMotor.set(driveOutput);
-            mTurnMotor.set(turnOutput * Constants.Mechanical.kPhysicalMaxAngularSpeedRadiansPerSecond * 2); 
+            mTurnMotor.set(turnOutput); 
             
             // Telemetry
             SmartDashboard.putNumber("turn " + mDriveMotor.getDeviceID() + " output", turnOutput);
