@@ -51,9 +51,9 @@ public class SwerveJoystick extends Command {
         ySpeed *= Constants.Mechanical.kTeleDriveMaxSpeedMetersPerSecond;
         turningSpeed *= Constants.Mechanical.kTeleDriveMaxSpeedMetersPerSecond;
 
-        SmartDashboard.putNumber("xSpeed", xSpeed);
-        SmartDashboard.putNumber("ySpeed", ySpeed);
-        SmartDashboard.putNumber("turningSpeed", turningSpeed);
+        // SmartDashboard.putNumber("xSpeed", xSpeed);
+        // SmartDashboard.putNumber("ySpeed", ySpeed);
+        // SmartDashboard.putNumber("turningSpeed", turningSpeed);
 
         // Drive
         mSwerveSubsystem.drive(xSpeed, ySpeed, turningSpeed, false);

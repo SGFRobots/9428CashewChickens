@@ -3,9 +3,13 @@ package frc.robot.subsystems;
 import frc.robot.Constants;
 
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkLowLevel.MotorType; //Dont use REV Robotics?
+// import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
 
 import edu.wpi.first.math.MathUtil;
@@ -20,6 +24,7 @@ public class Module {
     // motors and encoders
     private final TalonFX mDriveMotor;
     private final CANSparkMax mTurnMotor;
+    // private ClosedLoopGeneralConfigs configs;
 
     // PID controllers - feedback method
     public final PIDController turningPID;
@@ -53,11 +58,13 @@ public class Module {
             mDriveMotor.setInverted(pDriveReversed);
             mTurnMotor.setInverted(pTurnReversed);
             mTurnMotor.setIdleMode(IdleMode.kCoast);
+            // configs = new ClosedLoopGeneralConfigs();
+            // configs.ContinuousWrap = true;
 
             // Absolute Encoder
             absoluteEncoder = new CANcoder(pAbsoluteEncoderPort);
             AbsoluteEncoderReversed = pAbsoluteEncoderReversed;
-            absoluteEncoderOffset = pAbsoluteEncoderOffset;            
+            absoluteEncoderOffset = pAbsoluteEncoderOffset;
             
             //PID Controller - change PID values when get feedback
             turningPID = new PIDController(0.05, 0, 0);
@@ -94,16 +101,17 @@ public class Module {
 
             SmartDashboard.putNumber("before" + mDriveMotor.getDeviceID(), pNewState.angle.getDegrees());
             currentState = SwerveModuleState.optimize(pNewState, new Rotation2d(getCurrentAngleRad())); // There is something wrong with this! What is wrong? Who knows!
+            // currentState = SwerveOptimizeAngle(pNewState, new Rotation2d(getCurrentAngleRad()));
             // currentState = optimizeStateDeg(pNewState, getCurrentAngleDeg());        
-            System.out.println(pNewState.angle.getDegrees());
 
             // Set power to motorsr
             driveOutput = (currentState.speedMetersPerSecond * Math.cos(turningPID.getPositionError())) / Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond;
-            turnOutput = turningPID.calculate(getCurrentAngleRad90(), currentState.angle.getRadians());
+            turnOutput = turningPID.calculate(getCurrentAngleRad(), currentState.angle.getRadians());
             
-            mDriveMotor.set(driveOutput);
-            mTurnMotor.set(turnOutput); 
-            
+            mDriveMotor.set(driveOutput * 2);
+            mTurnMotor.set(turnOutput * Constants.Mechanical.kPhysicalMaxAngularSpeedRadiansPerSecond * 2); 
+            // turnPID.setReference(currentState.angle.getRadians(), CANSparkBase.ControlType.kPosition);
+
             // Telemetry
             SmartDashboard.putNumber("turn " + mDriveMotor.getDeviceID() + " output", turnOutput);
             SmartDashboard.putNumber("drive " + mDriveMotor.getDeviceID() + " output", driveOutput);
@@ -120,13 +128,16 @@ public class Module {
     }
     
     public double getCurrentAngleRad() {
-        double angle = -absoluteEncoder.getAbsolutePosition().getValueAsDouble() * Math.PI * 2;
+        double angle = absoluteEncoder.getAbsolutePosition().getValueAsDouble() * Math.PI * 2; // Changed: absolute ecoder position was negitive, now positive. 
+        // angle *= (AbsoluteEncoderReversed) ? -1 : 1;
         return MathUtil.angleModulus(angle - (absoluteEncoderOffset * Math.PI * 2));
     }
+
     public double getCurrentAngleRad90() {
         double angle = absoluteEncoder.getAbsolutePosition().getValueAsDouble() * Math.PI * 2;
         return MathUtil.inputModulus(angle-(absoluteEncoderOffset*Math.PI*2), -(Math.PI/2), Math.PI/2);
     }
+    
     public SwerveModuleState optimizeStateDeg(SwerveModuleState newState, double currentAngle) {
         double change = Math.abs(currentAngle - newState.angle.getDegrees());
         if ((change > 90) && (change < 270)) {
