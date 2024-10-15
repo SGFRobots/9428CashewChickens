@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-// import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 // import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -21,7 +21,8 @@ import frc.robot.commands.ResetRotations;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   // Instances of controllers
-  public final XboxController mController;
+  // public final XboxController mController;
+  public final GenericHID mController;
 
   // Subsystems and commands
   private final SwerveSubsystem mSwerveSubsystem;
@@ -29,7 +30,8 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    mController = new XboxController(0);
+    // mController = new XboxController(0);
+    mController = new GenericHID(0);
 
     // Subsystems and commands
     mSwerveSubsystem = new SwerveSubsystem();

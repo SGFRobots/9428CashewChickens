@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import frc.robot.Constants;
 
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -58,6 +59,7 @@ public class Module {
             mDriveMotor.setInverted(pDriveReversed);
             mTurnMotor.setInverted(pTurnReversed);
             mTurnMotor.setIdleMode(IdleMode.kCoast);
+            mDriveMotor.setNeutralMode(NeutralModeValue.Brake);
             // configs = new ClosedLoopGeneralConfigs();
             // configs.ContinuousWrap = true;
 
@@ -166,7 +168,7 @@ public class Module {
         // SmartDashboard.putNumber("sv: drive motor" + mDriveMotor.getDeviceID(), mDriveMotor.getSupplyVoltage().getValue());
         // SmartDashboard.putNumber("mv: turn motor" + mTurnMotor.getDeviceId(), turnOutput);
         // SmartDashboard.putNumber("drive motor" + mDriveMotor.getDeviceID(), mDriveMotor.getPosition().getValue());
-        SmartDashboard.putNumber("absolute encoder" + mDriveMotor.getDeviceID(), getCurrentAngleDeg());
+        SmartDashboard.putNumber("absolute encoder" + mDriveMotor.getDeviceID(), absoluteEncoder.getAbsolutePosition().getValueAsDouble());
     }
 
     // Turn module back to 0 position
