@@ -4,13 +4,9 @@ import frc.robot.Constants;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkLowLevel.MotorType; //Dont use REV Robotics?
-// import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
+import com.revrobotics.CANSparkLowLevel.MotorType; 
 import com.ctre.phoenix6.hardware.CANcoder;
 
 import edu.wpi.first.math.MathUtil;
@@ -28,17 +24,16 @@ public class Module {
     // private ClosedLoopGeneralConfigs configs;
 
     // PID controllers - feedback method
-    public final PIDController turningPID;
-    public final PIDController drivingPID;
+    private final PIDController turningPID;
 
     // aBSOLUTE ENCODER - knows where the wheels are facing at all times
-    public final CANcoder absoluteEncoder;
-    public final boolean AbsoluteEncoderReversed;
-    public final double absoluteEncoderOffset;
+    private final CANcoder absoluteEncoder;
+    private final boolean AbsoluteEncoderReversed;
+    private final double absoluteEncoderOffset;
 
     public boolean resetting;
 
-    public SwerveModuleState currentState;
+    private SwerveModuleState currentState;
 
     // turning and driving power/distance
     private double turnOutput;
@@ -50,8 +45,7 @@ public class Module {
     // Constructores
     public Module(
         int pDrivePort, int pTurnPort, boolean pDriveReversed, boolean pTurnReversed,
-        int pAbsoluteEncoderPort, double pAbsoluteEncoderOffset, boolean pAbsoluteEncoderReversed,
-        int[] pDriveEncoderPorts, int[] pTurnEncoderPorts, boolean pDEncoderReversed, boolean pTEncoderReversed) {
+        int pAbsoluteEncoderPort, double pAbsoluteEncoderOffset, boolean pAbsoluteEncoderReversed) {
 
             // Motors
             mDriveMotor = new TalonFX(pDrivePort);
@@ -60,8 +54,6 @@ public class Module {
             mTurnMotor.setInverted(pTurnReversed);
             mTurnMotor.setIdleMode(IdleMode.kCoast);
             mDriveMotor.setNeutralMode(NeutralModeValue.Brake);
-            // configs = new ClosedLoopGeneralConfigs();
-            // configs.ContinuousWrap = true;
 
             // Absolute Encoder
             absoluteEncoder = new CANcoder(pAbsoluteEncoderPort);
@@ -71,7 +63,6 @@ public class Module {
             //PID Controller - change PID values when get feedback
             turningPID = new PIDController(0.05, 0, 0);
             turningPID.enableContinuousInput(-Math.PI, Math.PI); // minimize rotations to 180
-            drivingPID = new PIDController(1, 0, 0);
             // P = rate of change
             // I = rate of change of D
             // D = rate of change of P (slow when get closer)
@@ -101,20 +92,17 @@ public class Module {
                 return;
             }
 
-            SmartDashboard.putNumber("before" + mDriveMotor.getDeviceID(), pNewState.angle.getDegrees());
-            currentState = SwerveModuleState.optimize(pNewState, new Rotation2d(getCurrentAngleRad())); // There is something wrong with this! What is wrong? Who knows!
-            // currentState = SwerveOptimizeAngle(pNewState, new Rotation2d(getCurrentAngleRad()));
-            // currentState = optimizeStateDeg(pNewState, getCurrentAngleDeg());        
-
-            // Set power to motorsr
-            driveOutput = (currentState.speedMetersPerSecond * Math.cos(turningPID.getPositionError())) / Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond;
-            turnOutput = turningPID.calculate(getCurrentAngleRad(), currentState.angle.getRadians());
+            // Optimize angle
+            currentState = SwerveModuleState.optimize(pNewState, new Rotation2d(getCurrentAngleRad()));       
             
-            mDriveMotor.set(driveOutput * 2);
-            mTurnMotor.set(turnOutput * Constants.Mechanical.kPhysicalMaxAngularSpeedRadiansPerSecond * 2); 
-            // turnPID.setReference(currentState.angle.getRadians(), CANSparkBase.ControlType.kPosition);
-
+            // Set power to motor
+            driveOutput = (currentState.speedMetersPerSecond * Math.cos(turningPID.getPositionError())) / Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond * 3;
+            turnOutput = turningPID.calculate(getCurrentAngleRad(), currentState.angle.getRadians()) * Constants.Mechanical.kPhysicalMaxAngularSpeedRadiansPerSecond * 2;
+            mDriveMotor.set(driveOutput);
+            mTurnMotor.set(turnOutput); 
+            
             // Telemetry
+            SmartDashboard.putNumber("before" + mDriveMotor.getDeviceID(), pNewState.angle.getDegrees());
             SmartDashboard.putNumber("turn " + mDriveMotor.getDeviceID() + " output", turnOutput);
             SmartDashboard.putNumber("drive " + mDriveMotor.getDeviceID() + " output", driveOutput);
             SmartDashboard.putString("Swerve[" + absoluteEncoder.getDeviceID() + "] state", currentState.toString());
@@ -125,35 +113,11 @@ public class Module {
         }
     }
     
-    public double getCurrentAngleDeg() {
-        return Math.toDegrees(getCurrentAngleRad());
-    }
-    
+    // Read current module angle in Radians
     public double getCurrentAngleRad() {
-        double angle = absoluteEncoder.getAbsolutePosition().getValueAsDouble() * Math.PI * 2; // Changed: absolute ecoder position was negitive, now positive. 
-        // angle *= (AbsoluteEncoderReversed) ? -1 : 1;
-        return MathUtil.angleModulus(angle - (absoluteEncoderOffset * Math.PI * 2));
-    }
-
-    public double getCurrentAngleRad90() {
         double angle = absoluteEncoder.getAbsolutePosition().getValueAsDouble() * Math.PI * 2;
-        return MathUtil.inputModulus(angle-(absoluteEncoderOffset*Math.PI*2), -(Math.PI/2), Math.PI/2);
-    }
-    
-    public SwerveModuleState optimizeStateDeg(SwerveModuleState newState, double currentAngle) {
-        double change = Math.abs(currentAngle - newState.angle.getDegrees());
-        if ((change > 90) && (change < 270)) {
-            return new SwerveModuleState(-newState.speedMetersPerSecond, newState.angle.rotateBy(Rotation2d.fromDegrees(180)));
-        }
-        return newState;
-    }
-    
-    public SwerveModuleState optimizeStateRad(SwerveModuleState newState, double currentAngle) {
-        double change = currentAngle - newState.angle.getRadians();
-        if ((change > (Math.PI / 2)) || (change < (3 * Math.PI / 2))) {
-            return new SwerveModuleState(-newState.speedMetersPerSecond, newState.angle.rotateBy(Rotation2d.fromDegrees(180)));
-        }
-        return newState;
+        angle *= (AbsoluteEncoderReversed) ? -1 : 1;
+        return MathUtil.angleModulus(angle - (absoluteEncoderOffset * Math.PI * 2));
     }
     
     // Test one module at a time
@@ -173,14 +137,13 @@ public class Module {
 
     // Turn module back to 0 position
     public void resetRotation() {
-        System.out.println(mDriveMotor.getDeviceID());
-        turnOutput = turningPID.calculate(absoluteEncoder.getAbsolutePosition().getValueAsDouble(), absoluteEncoderOffset);
-        if (Math.abs(turnOutput) < Constants.Mechanical.kDeadzone) {
+        turnOutput = turningPID.calculate(absoluteEncoder.getAbsolutePosition().getValueAsDouble() * Math.PI * 2, absoluteEncoderOffset * Math.PI * 2) * Constants.Mechanical.kPhysicalMaxAngularSpeedRadiansPerSecond;
+        if (Math.abs(turnOutput) < 0.01) {
             resetting = false;
             return;
         }
         mTurnMotor.set(turnOutput);
-        mDriveMotor.set(0);
+        mDriveMotor.set(0);  
     }
 
     // Stop all motors

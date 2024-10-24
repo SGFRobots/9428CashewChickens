@@ -40,18 +40,6 @@ public final class Constants {
         public static final int kFRDriveAbsoluteEncoderID = 5;
         public static final int kBRDriveAbsoluteEncoderID = 8;
 
-        // Ports of driving encoders - NEED TO CHANGE!
-        public static final int[] kFLDriveEncoderPorts = {9, 10};
-        public static final int[] kBLDriveEncoderPorts = {11, 12};
-        public static final int[] kFRDriveEncoderPorts = {13, 14};
-        public static final int[] kBRDriveEncoderPorts = {15, 16};
-
-        // Ports of turning encoders - NEED TO CHANGE!
-        public static final int[] kFLTurnEncoderPorts = {17,18};
-        public static final int[] kBLTurnEncoderPorts = {19,20};
-        public static final int[] kFRTurnEncoderPorts = {21,22};
-        public static final int[] kBRTurnEncoderPorts = {23,24};
-
         // Gyro
         public static final int kGyroPort = 2;
     }
@@ -93,10 +81,10 @@ public final class Constants {
     public static final class Mechanical {
 
         // Robot's physical measurements
-        public static final double kWheelRadius = .0508;
-        public static final double kWheelDiameterMeters = 0.1016;
-        public static final double kDriveMotorGearRatio= 6.12;
-        public static final double kTurningMotorGearRatio =150/7;
+        public static final double kWheelRadiusMeters = 0.0508;
+        public static final double kWheelDiameterMeters = kWheelRadiusMeters * 2;
+        public static final double kDriveMotorGearRatio = 6.12;
+        public static final double kTurningMotorGearRatio = 150/7;
         public static final double kDriveEncoderRot2Meter = kDriveMotorGearRatio * Math.PI * kWheelDiameterMeters;
         public static final double kTurningEncoderRot2Rad = kTurningMotorGearRatio * 2 * Math.PI;
         public static final double kDriveEncoderRPM2MeterPerSec = kDriveEncoderRot2Meter / 60;
@@ -114,22 +102,22 @@ public final class Constants {
         public static final DCMotor kTurnGearBox = DCMotor.getKrakenX60(1);
         
         // Distance between right and left wheels (in meters)
-        public static final double kRobotWidth = 0.64;
+        public static final double kRobotWidthMeters = 0.64;
         // Distance between front and back wheels (in meters)
-        public static final double kRobotLength = 0.64;
+        public static final double kRobotLengthMeters = 0.64;
 
         // CANCoders' offsets
-        public static final double kFLDriveAbsoluteEncoderOffsetRad = 0.70996; //0.70825;  //0; //0.2905;
-        public static final double kBLDriveAbsoluteEncoderOffsetRad = 0.83764; //0.93789; //0; //0.3333;
-        public static final double kFRDriveAbsoluteEncoderOffsetRad = 0.52612; //0.52368;  //0; //0.0195;
-        public static final double kBRDriveAbsoluteEncoderOffsetRad = 0.78564; //0.79689;  //0; //0.2981;
+        public static final double kFLDriveAbsoluteEncoderOffset = 0.70996; 
+        public static final double kBLDriveAbsoluteEncoderOffset = 0.83764;
+        public static final double kFRDriveAbsoluteEncoderOffset = 0.52612; 
+        public static final double kBRDriveAbsoluteEncoderOffset = 0.78564; 
 
         // Module Positions on Robot
         public static final Translation2d[] kModulePositions = {
-            new Translation2d(kRobotLength / 2, kRobotWidth / 2),
-            new Translation2d(kRobotLength / 2, -kRobotWidth / 2),
-            new Translation2d(-kRobotLength / 2, kRobotWidth / 2),
-            new Translation2d(-kRobotLength / 2, -kRobotWidth / 2)
+            new Translation2d(kRobotLengthMeters / 2, kRobotWidthMeters / 2),
+            new Translation2d(kRobotLengthMeters / 2, -kRobotWidthMeters / 2),
+            new Translation2d(-kRobotLengthMeters / 2, kRobotWidthMeters / 2),
+            new Translation2d(-kRobotLengthMeters / 2, -kRobotWidthMeters / 2)
         };
         // Kinematics map of robot
         // FL, FR, BL, BR
@@ -162,7 +150,7 @@ public final class Constants {
         public static final int RightYPort = 3;
 
         // Buttons and bumpers
-        public static final int ButtonAPort = 1;
+        public static final int ButtonAPort = 7;
         public static final int ButtonBPort = 2;
         public static final int ButtonXPort = 3;
         public static final int ButtonYPort = 4;

@@ -15,12 +15,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-import java.io.File;
-import edu.wpi.first.wpilibj.Filesystem;
-import swervelib.parser.SwerveParser;
-import swervelib.SwerveDrive;
-import edu.wpi.first.math.util.Units;
-
 
 public class SwerveSubsystem extends SubsystemBase {
     // Make instances of all 4 modules
@@ -32,12 +26,8 @@ public class SwerveSubsystem extends SubsystemBase {
                     Constants.Reversed.kFLDriveReversed,
                     Constants.Reversed.kFLTurningReversed,
                     Constants.MotorPorts.kFLDriveAbsoluteEncoderID,
-                    Constants.Mechanical.kFLDriveAbsoluteEncoderOffsetRad,
-                    Constants.Reversed.kFLDriveAbsoluteEncoderReversed,
-                    Constants.MotorPorts.kFLDriveEncoderPorts,
-                    Constants.MotorPorts.kFLTurnEncoderPorts,
-                    Constants.Reversed.kFLDriveEncoderReversed,
-                    Constants.Reversed.kFLTurningEncoderReversed),
+                    Constants.Mechanical.kFLDriveAbsoluteEncoderOffset,
+                    Constants.Reversed.kFLDriveAbsoluteEncoderReversed),
 
             // Front Right
             new Module(
@@ -46,12 +36,8 @@ public class SwerveSubsystem extends SubsystemBase {
                     Constants.Reversed.kFRDriveReversed,
                     Constants.Reversed.kFRTurningReversed,
                     Constants.MotorPorts.kFRDriveAbsoluteEncoderID,
-                    Constants.Mechanical.kFRDriveAbsoluteEncoderOffsetRad,
-                    Constants.Reversed.kFRDriveAbsoluteEncoderReversed,
-                    Constants.MotorPorts.kFRDriveEncoderPorts,
-                    Constants.MotorPorts.kFRTurnEncoderPorts,
-                    Constants.Reversed.kFRDriveEncoderReversed,
-                    Constants.Reversed.kFRTurningEncoderReversed),
+                    Constants.Mechanical.kFRDriveAbsoluteEncoderOffset,
+                    Constants.Reversed.kFRDriveAbsoluteEncoderReversed),
 
             // Back Left
             new Module(
@@ -60,12 +46,8 @@ public class SwerveSubsystem extends SubsystemBase {
                     Constants.Reversed.kBLDriveReversed,
                     Constants.Reversed.kBLTurningReversed,
                     Constants.MotorPorts.kBLDriveAbsoluteEncoderID,
-                    Constants.Mechanical.kBLDriveAbsoluteEncoderOffsetRad,
-                    Constants.Reversed.kBLDriveAbsoluteEncoderReversed,
-                    Constants.MotorPorts.kBLDriveEncoderPorts,
-                    Constants.MotorPorts.kBLTurnEncoderPorts,
-                    Constants.Reversed.kBLDriveEncoderReversed,
-                    Constants.Reversed.kBLTurningEncoderReversed),
+                    Constants.Mechanical.kBLDriveAbsoluteEncoderOffset,
+                    Constants.Reversed.kBLDriveAbsoluteEncoderReversed),
             
             // Back Right
             new Module(
@@ -74,20 +56,11 @@ public class SwerveSubsystem extends SubsystemBase {
                     Constants.Reversed.kBRDriveReversed,
                     Constants.Reversed.kBRTurningReversed,
                     Constants.MotorPorts.kBRDriveAbsoluteEncoderID,
-                    Constants.Mechanical.kBRDriveAbsoluteEncoderOffsetRad,
-                    Constants.Reversed.kBRDriveAbsoluteEncoderReversed,
-                    Constants.MotorPorts.kBRDriveEncoderPorts,
-                    Constants.MotorPorts.kBRTurnEncoderPorts,
-                    Constants.Reversed.kBRDriveEncoderReversed,
-                    Constants.Reversed.kBRTurningEncoderReversed),
+                    Constants.Mechanical.kBRDriveAbsoluteEncoderOffset,
+                    Constants.Reversed.kBRDriveAbsoluteEncoderReversed),
 
     };
 
-    // double maximumSpeed = Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond;
-    // File swerveJsonDirectory = new File(Filesystem.getDeployDirectory(),"swerve");
-    // SwerveDrive  swerveDrive = new SwerveParser(swerveJsonDirectory).createSwerveDrive(maximumSpeed);
-
-   
     // Positions stored in mOdometer
     private final SwerveDriveOdometry mOdometer;
 
