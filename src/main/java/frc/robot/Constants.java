@@ -6,8 +6,6 @@ package frc.robot;
 
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.math.geometry.Translation2d;
 
 /**
@@ -144,27 +142,25 @@ public final class Constants {
         // Joysticks and triggers
         public static final int LeftXPort = 0;
         public static final int LeftYPort = 1;
-        public static final int LeftTriggerPort = 4;
-        public static final int RightTriggerPort = 5;
         public static final int RightXPort = 2;
         public static final int RightYPort = 3;
 
-        // Buttons and bumpers
-        public static final int ButtonAPort = 7;
-        public static final int ButtonBPort = 2;
-        public static final int ButtonXPort = 3;
-        public static final int ButtonYPort = 4;
-        public static final int LeftBumper = 5;
-        public static final int RightBumper = 6;
+        // Dials
+        public static final int s1DialPort = 4;
+        public static final int s2DialPort = 5;
 
-        // Static buttons and bumpers
-        public static final class XBox {
-            public static final Button buttonA = XboxController.Button.kA;
-            public static final Button buttonB = XboxController.Button.kB;
-            public static final Button buttonX = XboxController.Button.kX;
-            public static final Button buttonY = XboxController.Button.kY;
-            public static final Button leftBumper = XboxController.Button.kLeftBumper;
-            public static final Button rightBumper = XboxController.Button.kRightBumper;
-        }
+        // Switches
+        public static final int SwitchE = 6;
+        public static final int SwitchF = 7;
+        public static final int UpperB = 1;
+        public static final int MiddleB = 2;
+        public static final int LowerB = 3;
+        public static final int UpperC = 4;
+        public static final int MiddleC = 5;
+        public static final int LowerC = 6;
+
+        // Buttons
+        public static final int ButtonAPort = 7;
+        public static final int ButtonDPort = 8;
   }
 }

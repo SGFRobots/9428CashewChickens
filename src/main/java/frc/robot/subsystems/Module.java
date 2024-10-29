@@ -98,7 +98,7 @@ public class Module {
             // Set power to motor
             driveOutput = (currentState.speedMetersPerSecond * Math.cos(turningPID.getPositionError())) / Constants.Mechanical.kPhysicalMaxSpeedMetersPerSecond * 3;
             turnOutput = turningPID.calculate(getCurrentAngleRad(), currentState.angle.getRadians()) * Constants.Mechanical.kPhysicalMaxAngularSpeedRadiansPerSecond * 2;
-            mDriveMotor.set(driveOutput);
+            mDriveMotor.set(driveOutput*2);
             mTurnMotor.set(turnOutput); 
             
             // Telemetry
