@@ -58,11 +58,14 @@ public class SwerveSubsystem extends SubsystemBase {
                     Constants.MotorPorts.kBRDriveAbsoluteEncoderID,
                     Constants.Mechanical.kBRDriveAbsoluteEncoderOffset,
                     Constants.Reversed.kBRDriveAbsoluteEncoderReversed),
+            
 
     };
 
     // Positions stored in mOdometer
     private final SwerveDriveOdometry mOdometer;
+
+    private ChassisSpeeds chassisSpeeds;
 
     // Simulated field
     public static final Field2d mField2d = new Field2d();
@@ -87,12 +90,16 @@ public class SwerveSubsystem extends SubsystemBase {
 
         // Simulated field
         SmartDashboard.putData("Field", mField2d);
+
+        
     }
 
     // Get position of robot based on odometer
     public Pose2d getPose() {
         return mOdometer.getPoseMeters();
     }
+
+    public void resetPose() {}
 
     @Override
     public void periodic() {
@@ -150,12 +157,8 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     // DRIVE the robot
-    public void drive(double xSpeed, double ySpeed, double turningSpeed, boolean fieldRelative) {
-        // Set desire chassis speeds based on field or robot relative
-        ChassisSpeeds chassisSpeed;
-        chassisSpeed = new ChassisSpeeds(xSpeed, ySpeed, turningSpeed);
-        chassisSpeed = ChassisSpeeds.discretize(chassisSpeed, 0.02);
-
+    public void drive(ChassisSpeeds chassisSpeed) {
+        this.chassisSpeeds = chassisSpeed;
         // Convert chassis speeds to each module states
         SwerveModuleState[] moduleStates = Constants.Mechanical.kDriveKinematics.toSwerveModuleStates(chassisSpeed);
 
@@ -167,6 +170,10 @@ public class SwerveSubsystem extends SubsystemBase {
         for (int i = 0; i < modules.length; i++) {
             modules[i].setDesiredState(moduleStates[i]);
         }
+    }
+
+    public ChassisSpeeds getCurrentSpeeds() {
+        return chassisSpeeds;
     }
 
     // Test one module at a time

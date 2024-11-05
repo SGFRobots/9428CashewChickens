@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.GenericHID;
 import frc.robot.Constants;
 
@@ -50,8 +51,13 @@ public class SwerveJoystick extends Command {
         ySpeed *= Constants.Mechanical.kTeleDriveMaxSpeedMetersPerSecond;
         turningSpeed *= Constants.Mechanical.kTeleDriveMaxSpeedMetersPerSecond;
 
+        // Set desire chassis speeds based on field or robot relative
+        ChassisSpeeds chassisSpeed;
+        chassisSpeed = new ChassisSpeeds(xSpeed, ySpeed, turningSpeed);
+        chassisSpeed = ChassisSpeeds.discretize(chassisSpeed, 0.02);
+
         // Drive
-        mSwerveSubsystem.drive(xSpeed, ySpeed, turningSpeed, false);
+        mSwerveSubsystem.drive(chassisSpeed);
 
         // Test
         // mSwerveSubsystem.driveIndividualModule(xSpeed, turningSpeed);
